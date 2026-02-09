@@ -6,3 +6,30 @@
 
 .vscode
 .idea
+
+# Latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Bibliography files
+*.bbl
+*.blg
+*.bib.bak
+
+# PDF output
+*.pdf
+
+# PythonTeX / SageTeX
+*.pytxcode
+*.sagetex.bak
+*.sagetex.py
+*.sagetex.scmd
+*.sagetex.sout
+
+# Directory-specific
+indent.log

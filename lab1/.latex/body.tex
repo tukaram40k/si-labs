@@ -1,0 +1,132 @@
+\newpage
+\setcounter{page}{1}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\thepage}
+\lhead{Rudenco Ivan FAF-232. Embedded Systems Laboratory Work Report.}
+
+% \tableofcontents
+\newpage
+
+\section{Domain Analysis}
+
+\subsection*{Purpose of the Work}
+Familiarizing students with the use of the \texttt{STDIO} library for serial communication and implementing a simple application that controls an LED via text commands sent from a serial terminal.
+
+\subsection*{Objectives of the Work}
+\begin{itemize}
+    \item Understanding the basic principles of serial communication.
+    \item Using the \texttt{STDIO} library for text information exchange.
+    \item Designing an application that interprets commands transmitted through the serial interface.
+    \item Developing a modular solution with separate functionalities for peripheral control.
+\end{itemize}
+
+\subsection*{Technologies Used}
+
+\subsubsection*{Standard Input/Output (STDIO)}
+
+Standard Input/Output (STDIO) represents a standardized library framework for managing input and output operations in programming languages. Within embedded systems, STDIO offers an abstraction layer that enables developers to communicate with the system through formatted text input and output. The STDIO library commonly incorporates functions like printf() for formatted output and scanf() for formatted input. In embedded implementations, STDIO is frequently redirected to a serial interface (UART), facilitating communication between the microcontroller and a host computer through a terminal application.
+
+\subsubsection*{Serial Communication (UART)}
+
+Universal Asynchronous Receiver-Transmitter (UART) serves as a hardware communication protocol employed for asynchronous serial communication. UART transforms parallel data from the microcontroller into serial data for transmission and performs the reverse operation. It utilizes only two signal lines (TX for transmission and RX for reception) along with ground, making it optimal for connecting embedded systems to computers or other devices. UART communication is defined by configurable parameters including baud rate (commonly 9600, 115200, etc.), data bits (typically 8), parity bits, and stop bits.
+
+\subsubsection*{GPIO (General Purpose Input/Output)}
+
+General Purpose Input/Output (GPIO) pins constitute configurable digital pins on microcontrollers that can be programmed as either inputs or outputs. When configured as inputs, GPIO pins can detect the state of external devices such as buttons, switches, or sensors. When configured as outputs, they can control external components such as LEDs, relays, or digital interfaces. GPIO pins often incorporate internal pull-up or pull-down resistors to maintain stable logic levels when external components are not actively controlling the pin.
+
+\subsubsection*{Arduino Platform}
+
+Arduino is an open-source electronics platform built upon user-friendly hardware and software. It delivers a simplified development environment and a comprehensive collection of libraries that abstract many low-level hardware details. The Arduino platform encompasses various microcontroller boards (such as Arduino Uno, Arduino Mega 2560, etc.), an Integrated Development Environment (IDE), and a thorough software framework. Arduino boards are extensively utilized in education, prototyping, and hobby projects due to their accessibility and robust community support.
+
+\subsection*{Problem Definition}
+\begin{itemize}
+    \item Configure the application to work with the \texttt{STDIO} library via the serial interface for text exchange through the terminal.
+    \item Design an MCU-based application that receives commands from the terminal via the serial interface to set the state of an LED:
+    \begin{itemize}
+        \item \texttt{led on} for turning it on.
+        \item \texttt{led off} for turning it off.
+    \end{itemize}
+    \item The system must respond with text messages confirming the command.
+    \item Use the \texttt{STDIO} library for text exchange through the terminal.
+\end{itemize}
+
+\subsection*{Materials and Resources}
+\subsubsection*{Hardware Components}
+\begin{itemize}
+    \item Microcontroller (Arduino Uno) - Main processing unit that executes the program controlling the LED via serial commands
+    \item LED - Light-emitting diode used as output indicator to demonstrate the functionality of the serial communication
+    \item $220\,\Omega$ Resistor - Current limiting resistor to protect the LED from excessive current that could damage it
+    \item Breadboard - Prototyping platform for building and testing the circuit without permanent connections
+    \item Jumper wires - Electrical connectors used to establish connections between components on the breadboard
+    \item Power source (USB) - Provides the necessary voltage and current to operate the microcontroller and connected components
+\end{itemize}
+
+\subsubsection*{Software Resources}
+\begin{itemize}
+    \item Visual Studio Code with the PlatformIO extension installed - Integrated Development Environment (IDE) for writing, compiling, and uploading code to the microcontroller
+    \item Serial terminal emulator - Software tool for sending and receiving text-based commands through the serial interface
+    \item Hardware simulator (Wokwi with VScode extension) - Simulation environment for testing the circuit and code without physical hardware
+\end{itemize}
+
+\section{Design}
+
+\subsection{Architecture Diagram}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Architecture.png}
+    \caption{System architecture diagram}
+    \label{fig:architecture}
+\end{figure}
+
+\textbf{Serial Terminal}:
+Interface for bidirectional communication between the Arduino and external devices, enabling real-time monitoring and command input via text-based commands.
+
+\textbf{IO Namespace}: Redirects standard input/output streams to the Arduino's serial interface, establishing communication with a baud rate of 9600.
+
+\textbf{LedDriver}: Hardware abstraction layer that provides an object-oriented interface for managing LED states (on/off/toggle) through GPIO pin manipulation.
+
+\textbf{Arduino}: Microcontroller platform that executes program logic, manages GPIO pins, handles serial communication, and coordinates software-hardware interaction.
+
+\textbf{LED}: Light-emitting diode controlled by digital output signals from the Arduino, acting as a visual indicator for system status.
+
+
+\subsection{Flowchart Diagram}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/Flowchart.png}
+    \caption{Flowchart Diagram}
+    \label{fig:flowchart}
+\end{figure}
+
+The code implements a serial communication interface that allows controlling an LED through text commands. A LedController object is initialized for pin 7 to manage the LED. In the setup() function, the LED controller is initialized and STDIO is redirected to the serial port. In the loop() function, the code continuously checks for incoming serial data. When data is received, it parses commands in the format "LED on" or "LED off" (case-insensitive). The code validates the command and toggles the LED state accordingly, with appropriate feedback messages sent back through the serial interface to confirm the action or indicate errors.
+
+\subsection{Electric Circuit Diagram}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Electric.png}
+    \caption{Circuit diagram}
+    \label{fig:electric_circuit}
+\end{figure}
+
+\section{Presentation of Results}
+\begin{itemize}
+    \item Relevant screenshots of system interaction and processed data.
+    \item Photos of the hardware assembly, if the work involves physical equipment.
+    \item Serial interface reports highlighting data exchange and system behavior.
+    \item Demonstration of functionality via video, if applicable (link to video source).
+    \item Simulation results if the system was tested in a simulator such as Proteus.
+\end{itemize}
+
+\section{Conclusions}
+\begin{itemize}
+    \item System performance analysis, identification of potential limitations, and improvement proposals.
+    \item Conclusions on the results obtained following the laboratory work.
+    \item Impact of the technology used in real-world applications.
+\end{itemize}
+
+\section{Note on AI use}
+During the drafting of this report, the author used Google Gemini for consolidating content. The resulting information was reviewed, validated, and adjusted according to the laboratory work requirements.
