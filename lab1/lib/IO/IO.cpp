@@ -5,7 +5,7 @@ static FILE serial_stream;
 namespace IO {
   int serial_putchar(char c, FILE *stream) {
     if (c == '\n') {
-      Serial.write('\r');  // Send carriage return first
+      Serial.write('\r');
     }
     Serial.write(c);
     return 0;
@@ -17,9 +17,10 @@ namespace IO {
   }
   
   void setup() {
-    // Initialize serial communication
+    // start serial
     Serial.begin(9600);
   
+    // redirect std to serial
     fdev_setup_stream(&serial_stream, serial_putchar, serial_getchar, _FDEV_SETUP_RW);
     stdout = &serial_stream;
     stdin = &serial_stream;

@@ -1,12 +1,12 @@
 #include "LedController.h"
 
 LedController::LedController(int pin) : m_pin(pin), m_isOn(false) {
-  // Constructor initializes member variables
+
 }
 
 void LedController::setup() {
   pinMode(m_pin, OUTPUT);
-  digitalWrite(m_pin, LOW);  // Ensure LED starts off
+  digitalWrite(m_pin, LOW);
   m_isOn = false;
 }
 

@@ -3,46 +3,30 @@
 
 #include <Arduino.h>
 
-/**
- * @brief Class to control an LED connected to a specific pin
- */
+// class to control led
 class LedController {
 public:
-  /**
-   * @brief Construct a new Led Controller object
-   * @param pin The digital pin to which the LED is connected
-   */
+  // make a new Led Controller on a pin
   LedController(int pin);
 
-  /**
-   * @brief Initialize the LED pin as output
-   */
+  // setup the led pin as output
   void setup();
 
-  /**
-   * @brief Turn the LED on
-   */
+  // turn led on
   void turnOn();
 
-  /**
-   * @brief Turn the LED off
-   */
+  // turn led on
   void turnOff();
 
-  /**
-   * @brief Toggle the LED state
-   */
+  // toggle led state
   void toggle();
 
-  /**
-   * @brief Check if the LED is currently on
-   * @return true if the LED is on, false otherwise
-   */
+  // check if led is on
   bool isOn() const;
 
 private:
-  int m_pin;    // Pin to which the LED is connected
-  bool m_isOn;    // Current state of the LED
+  int m_pin; // led pin
+  bool m_isOn; // led state
 };
 
-#endif // LED_CONTROLLER_H
+#endif
