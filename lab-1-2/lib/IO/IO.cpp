@@ -13,7 +13,15 @@ namespace IO {
 
   int serial_getchar(FILE *stream) {
     while (!Serial.available());
-    return Serial.read();
+    char c = Serial.read();
+
+    if (c != '\r') {
+      Serial.write(c);
+    } else {
+      Serial.write('\n');
+      Serial.write('\r');
+    }
+    return c;
   }
   
   void setup() {
