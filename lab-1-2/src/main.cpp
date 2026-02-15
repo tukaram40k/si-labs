@@ -5,11 +5,11 @@
 #include "../lib/IO/IO.h"
 
 // create a led controller for pin 7
-LedController led(7);
+LedController GreenLed(13);
 
 void setup() {
-  // init the led controller
-  led.setup();
+  // init the green led controller
+  GreenLed.setup();
 
   // redirect stdio to serial
   IO::setup();
@@ -29,10 +29,10 @@ void loop() {
       scanf("%9s", input2);
       
       if (strcmp(input2, "ON") == 0 or strcmp(input2, "on") == 0) {
-        led.turnOn();
+        GreenLed.turnOn();
         printf("LED is ON\n");
       } else if (strcmp(input2, "OFF") == 0 or strcmp(input2, "off") == 0) {
-        led.turnOff();
+        GreenLed.turnOff();
         printf("LED is OFF\n");
       } else {
         printf("Unknown command\n");
