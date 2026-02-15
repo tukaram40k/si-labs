@@ -61,31 +61,25 @@ namespace IO {
     return c;
   }
 
-  void setup() {
-    // Initialize LCD and Keypad controllers
-    _lcd = new LCDController(0x27, 16, 2);  // Common I2C address for 16x2 LCD
-    _keypad = new KeypadController(7, 6, 5, 4, 3, 2, 1, 0); // Example pin assignments
-    
-    _lcd->setup();
-    _keypad->setup();
-    
-    // Clear the LCD
-    _lcd->clear();
+  void setup(LCDController* lcd, KeypadController* keypad) {
+    // Store references to externally provided LCD and Keypad controllers
+    _lcd = lcd;
+    _keypad = keypad;
 
     // start serial
     Serial.begin(9600);
 
     // redirect std to lcd
     fdev_setup_stream(&lcd_stream, lcd_putchar, keypad_getchar, _FDEV_SETUP_RW);
-    
+
     stdout = &lcd_stream;  // Redirect stdout to LCD
     stdin = &lcd_stream;   // Redirect stdin to keypad input
   }
-  
+
   LCDController* getLCD() {
     return _lcd;
   }
-  
+
   KeypadController* getKeypad() {
     return _keypad;
   }

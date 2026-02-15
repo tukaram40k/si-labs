@@ -31,22 +31,24 @@ void setup() {
   // init the keypad
   keypad.setup();
 
-  // redirect stdio to serial
-  IO::setup();
+  // redirect stdio to lcd and keypad
+  IO::setup(&lcd, &keypad);
   printf("Enter Code:\n");
 }
 
 void loop() {
-  // check for key presses
-  char key = keypad.getKey();
-  if (key != 0) {
-    if (key != '*') {
-      codeBuffer += key;
-      
+  // check for key presses using stdio
+  int key = getchar();
+  
+  if (key != EOF) {
+    char ch = (char)key;
+    if (ch != '*') {
+      codeBuffer += ch;
+
       // update lcd
       lcd.clear();
       printf("%s\n", codeBuffer.c_str());
-      
+
       // match the code
       if (codeBuffer == "3344") {
         lcd.clear();
@@ -55,9 +57,9 @@ void loop() {
         red_led.turnOff();
 
         delay(2000);
-        
+
         codeBuffer = "";
-        
+
         lcd.clear();
         printf("Enter code:\n");
       }
@@ -69,19 +71,19 @@ void loop() {
         green_led.turnOff();
 
         delay(2000);
-        
+
         codeBuffer = "";
-        
+
         lcd.clear();
         printf("Enter code:\n");
       }
-    } 
+    }
     else {
       codeBuffer = "";
       lcd.clear();
       printf("Code cleared\n");
       delay(500);
-      
+
       lcd.clear();
       printf("Enter Code:\n");
     }
