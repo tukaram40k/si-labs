@@ -4,23 +4,23 @@ static FILE serial_stream;
 
 namespace IO {
   int serial_putchar(char c, FILE *stream) {
+    Serial.write(c);
     if (c == '\n') {
       Serial.write('\r');
     }
-    Serial.write(c);
     return 0;
   }
 
   int serial_getchar(FILE *stream) {
     while (!Serial.available());
     char c = Serial.read();
-
-    if (c != '\r') {
-      Serial.write(c);
-    } else {
-      Serial.write('\n');
-      Serial.write('\r');
-    }
+    Serial.write(c);
+    // if (c != '\r') {
+    //   Serial.write(c);
+    // } else {
+    //   Serial.write('\n');
+    //   Serial.write('\r');
+    // }
     return c;
   }
   
