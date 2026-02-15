@@ -4,6 +4,7 @@
 #include "../lib/IO/IO.h"
 #include "../lib/LedDriver/LedController.h"
 #include "../lib/LCDDriver/LCDController.h"
+#include "../lib/KeypadDriver/KeypadController.h"
 
 // create led controllers
 LedController green_led(13);
@@ -11,6 +12,12 @@ LedController red_led(12);
 
 // create an lcd controller (I2C address 0x27, 16 columns, 2 rows)
 LCDController lcd(0x27, 16, 2);
+
+// create a keypad controller (pins 7 - 0)
+KeypadController keypad(7, 6, 5, 4, 3, 2, 1, 0);
+
+// current code being entered
+String codeBuffer = "";
 
 void setup() {
   // init led controllers
@@ -20,7 +27,10 @@ void setup() {
   // init the lcd
   lcd.setup();
   lcd.clear();
-  lcd.print("Ready");
+  lcd.print("Enter Code:");
+
+  // init the keypad
+  keypad.setup();
 
   // redirect stdio to serial
   IO::setup();
@@ -28,47 +38,54 @@ void setup() {
 }
 
 void loop() {
-  char input[20];
-
-  // check for data on serial port
-  if (Serial.available() > 0) {
-    scanf("%19s", input);
-
-    // compare the command
-    if (strcmp(input, "LED") == 0 or strcmp(input, "led") == 0) {
-      char input2[10];
-      scanf("%9s", input2);
-
-      if (strcmp(input2, "ON") == 0 or strcmp(input2, "on") == 0) {
+  // check for key presses
+  char key = keypad.getKey();
+  if (key != 0) {
+    if (key != '*') {
+      codeBuffer += key;
+      
+      // update lcd
+      lcd.clear();
+      lcd.print(codeBuffer.c_str());
+      
+      // match the code
+      if (codeBuffer == "3344") {
+        lcd.clear();
+        lcd.print("Correct code!");
         green_led.turnOn();
         red_led.turnOff();
-        printf("LED is ON\n");
+        printf("Correct code!\n");
+        delay(2000);
+        
+        codeBuffer = "";
+        
         lcd.clear();
-        lcd.print("LED is ON");
-      } else if (strcmp(input2, "OFF") == 0 or strcmp(input2, "off") == 0) {
-        green_led.turnOff();
-        red_led.turnOff();
-        printf("LED is OFF\n");
-        lcd.clear();
-        lcd.print("LED is OFF");
-      } else {
-        red_led.turnOn();
-        printf("Unknown command\n");
-        lcd.clear();
-        lcd.print("Unknown cmd");
+        lcd.print("Enter code:");
       }
-    } else if (strcmp(input, "3344") == 0) {
-      green_led.turnOn();
-      printf("Correct code\n");
+      // check if 4 chars reached
+      else if (codeBuffer.length() >= 4) {
+        lcd.clear();
+        lcd.print("Incorrect!");
+        red_led.turnOn();
+        green_led.turnOff();
+        printf("Incorrect!\n");
+        delay(2000);
+        
+        codeBuffer = "";
+        
+        lcd.clear();
+        lcd.print("Enter code:");
+      }
+    } 
+    else {
+      codeBuffer = "";
       lcd.clear();
-      lcd.print("correct code");
-    } else {
-      red_led.turnOn();
-      green_led.turnOff();
-      red_led.turnOn();
-      printf("Unknown command\n");
+      lcd.print("Code cleared");
+      printf("Code cleared\n");
+      delay(500);
+      
       lcd.clear();
-      lcd.print("Unknown cmd");
+      lcd.print("Enter Code:");
     }
   }
 }
