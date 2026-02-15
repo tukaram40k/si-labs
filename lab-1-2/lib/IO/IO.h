@@ -20,11 +20,11 @@ namespace IO {
   int serial_getchar(FILE *stream);
 
   // setup stream redirection
-  void setup();
-  
+  void setup(LCDController* lcd, KeypadController* keypad);
+
   // get reference to LCD controller
   LCDController* getLCD();
-  
+
   // get reference to Keypad controller
   KeypadController* getKeypad();
 }
