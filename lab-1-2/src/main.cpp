@@ -57,7 +57,14 @@ void loop() {
         lcd.clear();
         lcd.print("Unknown cmd");
       }
+    } else if (strcmp(input, "3344") == 0) {
+      green_led.turnOn();
+      printf("Correct code\n");
+      lcd.clear();
+      lcd.print("correct code");
     } else {
+      red_led.turnOn();
+      green_led.turnOff();
       red_led.turnOn();
       printf("Unknown command\n");
       lcd.clear();
