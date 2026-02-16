@@ -52,12 +52,6 @@ namespace IO {
     while (!Serial.available());
     char c = Serial.read();
     Serial.write(c);
-    // if (c != '\r') {
-    //   Serial.write(c);
-    // } else {
-    //   Serial.write('\n');
-    //   Serial.write('\r');
-    // }
     return c;
   }
 

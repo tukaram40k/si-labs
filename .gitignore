@@ -4,8 +4,7 @@
 .vscode/launch.json
 .vscode/ipch
 
-.vscode
-.idea
+.vscode/settings.json
 
 # Latex
 .latex
