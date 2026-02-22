@@ -3,8 +3,8 @@
 #include <string.h>
 #include "../lib/IO/IO.h"
 #include "../lib/LedDriver/LedController.h"
-#include "../include/Scheduler.h"
-#include "../include/Tasks.h"
+#include "../lib/Scheduler/Scheduler.h"
+#include "../lib/Tasks/Tasks.h"
 
 // create led controllers (kept for compatibility, tasks use direct pin access)
 LedController led1(12);
