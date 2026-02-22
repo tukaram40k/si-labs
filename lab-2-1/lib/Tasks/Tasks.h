@@ -7,37 +7,37 @@
 // ============================================================================
 // Hardware Pin Definitions (from diagram.json)
 // ============================================================================
-#define PIN_LED1        12    // Red LED - Status/Toggle
-#define PIN_LED2        11    // Green LED - Rapid blink sequence
-#define PIN_LED3        10    // Yellow LED - Power/Heartbeat
-#define PIN_BUTTON      2     // Push button input
+#define PIN_LED1 12  // Red LED - Status/Toggle
+#define PIN_LED2 11  // Green LED - Rapid blink sequence
+#define PIN_LED3 10  // Yellow LED - Power/Heartbeat
+#define PIN_BUTTON 2 // Push button input
 
 // ============================================================================
 // Task Timing Configuration
 // ============================================================================
 // Task 1: Button Detector - runs every 10ms for responsive detection (<100ms latency)
-#define TASK1_PERIOD_MS     10
-#define TASK1_OFFSET_MS     0
+#define TASK1_PERIOD_MS 10
+#define TASK1_OFFSET_MS 0
 
 // Task 2: Press Counter & Visualizer - runs every 50ms
-#define TASK2_PERIOD_MS     50
-#define TASK2_OFFSET_MS     5
+#define TASK2_PERIOD_MS 50
+#define TASK2_OFFSET_MS 5
 
 // Task 3: Status Monitor - runs every 10 seconds
-#define TASK3_PERIOD_MS     10000
-#define TASK3_OFFSET_MS     1000
+#define TASK3_PERIOD_MS 10000
+#define TASK3_OFFSET_MS 1000
 
 // ============================================================================
 // Debounce Configuration
 // ============================================================================
-#define DEBOUNCE_DELAY_MS   50      // Debounce delay for button
+#define DEBOUNCE_DELAY_MS 50 // Debounce delay for button
 #define DEBOUNCE_STABLE_COUNT (DEBOUNCE_DELAY_MS / TASK1_PERIOD_MS)
 
 // ============================================================================
 // Blink Sequence Configuration
 // ============================================================================
-#define BLINK_COUNT         20      // Number of state changes (5 full blinks)
-#define BLINK_PERIOD_MS     150     // 200ms per state change (100ms on, 100ms off)
+#define BLINK_COUNT 20      // Number of state changes (5 full blinks)
+#define BLINK_PERIOD_MS 150 // 200ms per state change (100ms on, 100ms off)
 
 // ============================================================================
 // Shared State Variables (volatile for ISR/task safety)
