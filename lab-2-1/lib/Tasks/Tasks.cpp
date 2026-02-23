@@ -1,6 +1,7 @@
 #include "Tasks.h"
 #include "../Scheduler/Scheduler.h"
 #include "../LedDriver/LedController.h"
+#include "../ButtonDriver/ButtonController.h"
 #include <Arduino.h>
 #include <stdio.h>
 
@@ -19,17 +20,20 @@ static uint32_t s_lastBlinkTime = 0;
 
 static bool s_statusPending = false;
 
-// LED controller instances
-static LedController g_led1(PIN_LED1);
-static LedController g_led2(PIN_LED2);
-static LedController g_led3(PIN_LED3);
+// led controller instances
+static LedController led1(PIN_LED1);
+static LedController led2(PIN_LED2);
+static LedController led3(PIN_LED3);
+
+// button controller instance
+static ButtonController button(PIN_BUTTON);
 
 // task 1: button detector (10ms period, 0ms offset)
 // debounces button, toggles led1, sets flag for task 2
 void taskButtonDetector(void)
 {
   // read button state (active low)
-  bool currentButtonState = (digitalRead(PIN_BUTTON) == LOW);
+  bool currentButtonState = button.isPressed();
 
   // debounce: count consecutive identical readings
   if (currentButtonState != s_lastButtonState)
@@ -53,7 +57,7 @@ void taskButtonDetector(void)
       s_buttonDetected = true;
 
       // toggle led1
-      g_led1.toggle();
+      led1.toggle();
 
       // signal task 2
       g_buttonPressed = true;
@@ -89,7 +93,7 @@ void taskPressCounter(void)
     s_lastBlinkTime = currentTime;
 
     // turn on led2
-    g_led2.turnOn();
+    led2.turnOn();
     g_blinkState = HIGH;
   }
 
@@ -110,14 +114,14 @@ void taskPressCounter(void)
         s_blinkIndex = 0;
 
         // ensure led2 off
-        g_led2.turnOff();
+        led2.turnOff();
         g_blinkState = LOW;
       }
       else
       {
         // toggle led2
         g_blinkState = !g_blinkState;
-        g_led2.toggle();
+        led2.toggle();
       }
     }
   }
@@ -139,19 +143,19 @@ void taskStatusMonitor(void)
   g_pushCount = 0;
 
   // toggle led3 heartbeat
-  g_led3.toggle();
+  led3.toggle();
 }
 
 // initialization
 void tasksInit(void)
 {
   // setup LED controllers
-  g_led1.setup();
-  g_led2.setup();
-  g_led3.setup();
+  led1.setup();
+  led2.setup();
+  led3.setup();
 
-  // configure button with pull-up
-  pinMode(PIN_BUTTON, INPUT_PULLUP);
+  // setup button controller
+  button.setup();
 
   // initialize shared state
   g_buttonPressed = false;
