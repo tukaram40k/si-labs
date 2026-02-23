@@ -9,18 +9,17 @@
 void setup() {
   // redirect stdio to serial
   IO::setup();
-  
+
   // initialize tasks
   tasksInit();
-  
-  // Start the scheduler (enables Timer1 interrupt for 1ms system tick)
+
+  // start scheduler (1ms system tick)
   Scheduler::getInstance().begin();
-  
+
   printf("Ready\n");
 }
 
 void loop() {
-  // Run the non-preemptive scheduler
-  // Iterates through all registered tasks and executes those that are due
+  // run non-preemptive scheduler
   Scheduler::getInstance().run();
 }

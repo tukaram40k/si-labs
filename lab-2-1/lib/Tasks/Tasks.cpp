@@ -18,127 +18,98 @@ static uint32_t s_lastBlinkTime = 0;
 
 static bool s_statusPending = false;
 
-// ============================================================================
-// Task 1: Button Detector Implementation
-// ============================================================================
-/**
- * Task 1: Button Detector
- *
- * Period: 10ms
- * Offset: 0ms
- *
- * Implements software debouncing for the physical button.
- * When a valid press is detected:
- * - Toggles LED1
- * - Sets g_buttonPressed flag for Task 2
- *
- * Latency requirement: < 100ms (achieved with 10ms polling + 50ms debounce)
- */
+// task 1: button detector (10ms period, 0ms offset)
+// debounces button, toggles led1, sets flag for task 2
 void taskButtonDetector(void)
 {
-  // Read current button state (active low due to pull-up configuration)
+  // read button state (active low)
   bool currentButtonState = (digitalRead(PIN_BUTTON) == LOW);
 
-  // Debounce logic: count consecutive identical readings
+  // debounce: count consecutive identical readings
   if (currentButtonState != s_lastButtonState)
   {
-    // State changed, reset debounce counter
+    // state changed, reset counter
     s_debounceCounter = 0;
     s_lastButtonState = currentButtonState;
   }
   else
   {
-    // State stable, increment counter
+    // state stable, increment counter
     if (s_debounceCounter < DEBOUNCE_STABLE_COUNT)
     {
       s_debounceCounter++;
     }
 
-    // Check if we have a stable button press
+    // check for stable press
     if (s_debounceCounter == DEBOUNCE_STABLE_COUNT && currentButtonState && !s_buttonDetected)
     {
-      // Valid button press detected
+      // valid press detected
       s_buttonDetected = true;
 
-      // Toggle LED1
+      // toggle led1
       digitalWrite(PIN_LED1, !digitalRead(PIN_LED1));
 
-      // Signal Task 2 that a button was pressed
+      // signal task 2
       g_buttonPressed = true;
     }
   }
 
-  // Reset detection flag when button is released
+  // reset flag on release
   if (!currentButtonState && s_buttonDetected)
   {
     s_buttonDetected = false;
   }
 }
 
-// ============================================================================
-// Task 2: Press Counter & Visualizer Implementation
-// ============================================================================
-/**
- * Task 2: Press Counter & Visualizer
- *
- * Period: 50ms
- * Offset: 5ms
- *
- * Monitors g_buttonPressed from Task 1.
- * Upon detection:
- * - Increments global push_count
- * - Triggers rapid blink sequence on LED2
- *
- * Blink sequence: 10 state changes (5 full blinks) at 200ms frequency
- */
+// task 2: press counter & visualizer (50ms period, 5ms offset)
+// counts presses, triggers led2 blink sequence
 void taskPressCounter(void)
 {
-  // Get current system time
+  // get current time
   uint32_t currentTime = Scheduler::getInstance().getTickCount();
 
-  // Check for new button press from Task 1
+  // check for button press from task 1
   if (g_buttonPressed)
   {
-    // Consume the button press flag
+    // consume flag
     g_buttonPressed = false;
 
-    // Increment push counter
+    // increment counter
     g_pushCount++;
 
-    // Start blink sequence
+    // start blink sequence
     g_blinkSequenceActive = true;
     s_blinkIndex = 0;
     s_lastBlinkTime = currentTime;
 
-    // Turn on LED2 to start the sequence
+    // turn on led2
     digitalWrite(PIN_LED2, HIGH);
     g_blinkState = HIGH;
   }
 
-  // Handle blink sequence state machine (only if sequence is active)
+  // handle blink sequence
   if (g_blinkSequenceActive)
   {
-    // Check if 200ms has elapsed since last state change
+    // check if period elapsed
     if (currentTime - s_lastBlinkTime >= BLINK_PERIOD_MS)
     {
       s_lastBlinkTime = currentTime;
       s_blinkIndex++;
 
-      // Check if we've completed all 10 state changes
+      // check if sequence complete
       if (s_blinkIndex >= BLINK_COUNT)
       {
-        // Sequence complete: 10 state changes = 5 full blinks
-        // Total time: 10 * 200ms = 2 seconds
+        // sequence done
         g_blinkSequenceActive = false;
         s_blinkIndex = 0;
 
-        // Ensure LED2 is off at end of sequence
+        // ensure led2 off
         digitalWrite(PIN_LED2, LOW);
         g_blinkState = LOW;
       }
       else
       {
-        // Toggle LED2 state
+        // toggle led2
         g_blinkState = !g_blinkState;
         digitalWrite(PIN_LED2, g_blinkState);
       }
@@ -146,66 +117,49 @@ void taskPressCounter(void)
   }
 }
 
-// ============================================================================
-// Task 3: Status Monitor Implementation
-// ============================================================================
-/**
- * Task 3: Status Monitor
- *
- * Period: 10000ms (10 seconds)
- * Offset: 1000ms
- *
- * Executes strictly every 10 seconds.
- * - Reads current push_count
- * - Transmits value via UART/Serial
- * - Resets counter to zero
- */
+// task 3: status monitor (10s period, 1s offset)
+// logs push count, resets counter, toggles led3
 void taskStatusMonitor(void)
 {
-  // Read current count (atomic access)
+  // read count atomically
   noInterrupts();
   uint16_t currentCount = g_pushCount;
   interrupts();
 
-  // Transmit via UART
+  // transmit via uart
   printf("Total presses: %u\n", currentCount);
 
-  // Reset counter
+  // reset counter
   g_pushCount = 0;
 
-  // Toggle LED3 as heartbeat indicator
+  // toggle led3 heartbeat
   digitalWrite(PIN_LED3, !digitalRead(PIN_LED3));
 }
 
-// ============================================================================
-// Initialization Function
-// ============================================================================
-/**
- * Initialize all tasks and hardware pins
- */
+// initialization
 void tasksInit(void)
 {
-  // Configure LED pins as outputs
+  // configure led pins
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_LED2, OUTPUT);
   pinMode(PIN_LED3, OUTPUT);
 
-  // Configure button pin as input with internal pull-up
+  // configure button with pull-up
   pinMode(PIN_BUTTON, INPUT_PULLUP);
 
-  // Initialize all LEDs to OFF
+  // initialize leds off
   digitalWrite(PIN_LED1, LOW);
   digitalWrite(PIN_LED2, LOW);
   digitalWrite(PIN_LED3, LOW);
 
-  // Initialize shared state variables
+  // initialize shared state
   g_buttonPressed = false;
   g_pushCount = 0;
   g_blinkSequenceActive = false;
   g_blinkState = 0;
   g_blinkCounter = 0;
 
-  // Initialize task state machine variables
+  // initialize task state machines
   s_debounceCounter = 0;
   s_lastButtonState = false;
   s_buttonDetected = false;
@@ -213,7 +167,7 @@ void tasksInit(void)
   s_lastBlinkTime = 0;
   s_statusPending = false;
 
-  // Register tasks with scheduler
+  // register tasks
   Scheduler &scheduler = Scheduler::getInstance();
 
   scheduler.addTask(taskButtonDetector, TASK1_PERIOD_MS, TASK1_OFFSET_MS);
