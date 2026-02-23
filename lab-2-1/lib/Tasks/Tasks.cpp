@@ -1,5 +1,6 @@
 #include "Tasks.h"
 #include "../Scheduler/Scheduler.h"
+#include "../LedDriver/LedController.h"
 #include <Arduino.h>
 #include <stdio.h>
 
@@ -17,6 +18,11 @@ static uint8_t s_blinkIndex = 0;
 static uint32_t s_lastBlinkTime = 0;
 
 static bool s_statusPending = false;
+
+// LED controller instances
+static LedController g_led1(PIN_LED1);
+static LedController g_led2(PIN_LED2);
+static LedController g_led3(PIN_LED3);
 
 // task 1: button detector (10ms period, 0ms offset)
 // debounces button, toggles led1, sets flag for task 2
@@ -47,7 +53,7 @@ void taskButtonDetector(void)
       s_buttonDetected = true;
 
       // toggle led1
-      digitalWrite(PIN_LED1, !digitalRead(PIN_LED1));
+      g_led1.toggle();
 
       // signal task 2
       g_buttonPressed = true;
@@ -83,7 +89,7 @@ void taskPressCounter(void)
     s_lastBlinkTime = currentTime;
 
     // turn on led2
-    digitalWrite(PIN_LED2, HIGH);
+    g_led2.turnOn();
     g_blinkState = HIGH;
   }
 
@@ -104,14 +110,14 @@ void taskPressCounter(void)
         s_blinkIndex = 0;
 
         // ensure led2 off
-        digitalWrite(PIN_LED2, LOW);
+        g_led2.turnOff();
         g_blinkState = LOW;
       }
       else
       {
         // toggle led2
         g_blinkState = !g_blinkState;
-        digitalWrite(PIN_LED2, g_blinkState);
+        g_led2.toggle();
       }
     }
   }
@@ -133,24 +139,19 @@ void taskStatusMonitor(void)
   g_pushCount = 0;
 
   // toggle led3 heartbeat
-  digitalWrite(PIN_LED3, !digitalRead(PIN_LED3));
+  g_led3.toggle();
 }
 
 // initialization
 void tasksInit(void)
 {
-  // configure led pins
-  pinMode(PIN_LED1, OUTPUT);
-  pinMode(PIN_LED2, OUTPUT);
-  pinMode(PIN_LED3, OUTPUT);
+  // setup LED controllers
+  g_led1.setup();
+  g_led2.setup();
+  g_led3.setup();
 
   // configure button with pull-up
   pinMode(PIN_BUTTON, INPUT_PULLUP);
-
-  // initialize leds off
-  digitalWrite(PIN_LED1, LOW);
-  digitalWrite(PIN_LED2, LOW);
-  digitalWrite(PIN_LED3, LOW);
 
   // initialize shared state
   g_buttonPressed = false;
