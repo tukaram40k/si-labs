@@ -1,17 +1,16 @@
 ## Context
 
-We are implementing **Part 2 – Preemptive System using FreeRTOS** of a laboratory project.
+We are implementing **Part 2 – Preemptive System using FreeRTOS** of a ESP32 laboratory project.
 
-A **bare-metal version already exists in the current working directory**.
 You must:
 
 * Reuse the existing:
 
   * Button driver
   * LED driver
-  * IO / STDIO module
+
 * Keep the same HW abstraction layers (MCAL / ECAL / SRV separation).
-* Replace the bare-metal scheduler logic with a **FreeRTOS preemptive multitasking implementation**.
+* Replace the placeholder code with a **FreeRTOS preemptive multitasking implementation**.
 * Do NOT worry about documentation, diagrams, grading, or laboratory report.
 * Focus strictly on implementing the required functionality correctly using FreeRTOS.
 
@@ -105,7 +104,7 @@ Blinking must not block other tasks (use vTaskDelay, not busy-wait).
 # REQUIRED TASK ARCHITECTURE (FreeRTOS)
 
 You must implement **3 separate FreeRTOS tasks**.
-You must use <Arduino_FreeRTOS.h>.
+You must use FreeRTOS.
 
 ---
 
