@@ -5,12 +5,9 @@
 #include <stdio.h>
 
 namespace IO {
-  // helper for std output
-  int serial_putchar(char c, FILE *stream);
-
-  // helper for std input
-  int serial_getchar(FILE *stream);
-
+  // printf wrapper that outputs to Serial
+  int printf(const char *format, ...);
+  
   // setup stream redirection
   void setup();
 }

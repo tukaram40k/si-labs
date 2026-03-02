@@ -32,7 +32,7 @@ public:
   void setTaskEnabled(TaskFunction function, bool enabled);  // enable/disable task
 
   void run();  // run scheduler (call in loop)
-  uint32_t getTickCount() const;  // get current tick count
+  uint32_t getTickCount();  // get current tick count
   uint8_t getTaskCount() const;   // get registered task count
 
   void incrementTickCount();  // increment tick (called from isr)
@@ -44,6 +44,7 @@ private:
   Scheduler &operator=(const Scheduler &) = delete;
 
   volatile uint32_t m_tickCount;
+  portMUX_TYPE m_spinlock;
   TaskControlBlock m_tasks[MAX_TASKS];
   uint8_t m_taskCount;
 
