@@ -1,18 +1,22 @@
 #include "task_report.h"
 #include "config.h"
 #include "task_stats.h"
+#include "LCDController.h"
 
 // Static handle
-static SemaphoreHandle_t s_xStatsMutex = nullptr;
+static SemaphoreHandle_t StatsMutex = nullptr;
+
+// LCD instance (I2C address 0x27, 16 columns, 2 rows)
+static LCDController* lcd = nullptr;
 
 // Task function
 static void prvTaskReport(void *pvParameters)
 {
   TickType_t xLastWakeTime;
 
-  // Initialize serial for stdio (UART)
-  Serial.begin(115200);
-  delay(2000); // Give serial time to stabilize
+  // Initialize LCD (I2C address 0x27, 16x2 display)
+  lcd = new LCDController(0x27, 16, 2);
+  lcd->setup();
 
   // Initialize last wake time to current time
   xLastWakeTime = xTaskGetTickCount();
@@ -23,13 +27,13 @@ static void prvTaskReport(void *pvParameters)
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TASK_REPORT_PERIOD_MS));
 
     // Acquire mutex to read AND reset statistics
-    if (xSemaphoreTake(s_xStatsMutex, portMAX_DELAY) == pdTRUE)
+    if (xSemaphoreTake(StatsMutex, portMAX_DELAY) == pdTRUE)
     {
-      uint32_t ulTotal = s_xStats.ulTotalPressCount;
-      uint32_t ulShort = s_xStats.ulShortPressCount;
-      uint32_t ulLong = s_xStats.ulLongPressCount;
-      uint32_t ulSumShort = s_xStats.ulSumShortDuration;
-      uint32_t ulSumLong = s_xStats.ulSumLongDuration;
+      uint32_t ulTotal = Stats.ulTotalPressCount;
+      uint32_t ulShort = Stats.ulShortPressCount;
+      uint32_t ulLong = Stats.ulLongPressCount;
+      uint32_t ulSumShort = Stats.ulSumShortDuration;
+      uint32_t ulSumLong = Stats.ulSumLongDuration;
 
       // Calculate average
       float fAverage = 0.0;
@@ -38,22 +42,38 @@ static void prvTaskReport(void *pvParameters)
         fAverage = (float)(ulSumShort + ulSumLong) / (float)ulTotal;
       }
 
-      // Print statistics using printf (redirected to UART)
-      printf("========== STATISTICS REPORT ==========\n");
+      // Print statistics to stdio (UART)
+      printf("=======================================\n");
       printf("Total presses: %lu\n", ulTotal);
       printf("Short presses: %lu\n", ulShort);
       printf("Long presses: %lu\n", ulLong);
       printf("Average duration: %.2f ms\n", fAverage);
       printf("=======================================\n\n");
 
-      // Reset statistics while still holding the mutex
-      s_xStats.ulTotalPressCount = 0;
-      s_xStats.ulShortPressCount = 0;
-      s_xStats.ulLongPressCount = 0;
-      s_xStats.ulSumShortDuration = 0;
-      s_xStats.ulSumLongDuration = 0;
+      // Display statistics on LCD
+      lcd->clear();
+      
+      // Line 1: S:Y L:Z
+      lcd->printAt(0, 0, "T: ");
+      lcd->print(String(ulTotal).c_str());
+      lcd->print(" S: ");
+      lcd->print(String(ulShort).c_str());
+      lcd->print(" L: ");
+      lcd->print(String(ulLong).c_str());
+      
+      // Line 2: Avg: X.XX ms
+      lcd->printAt(0, 1, "Avg: ");
+      lcd->print(String(fAverage, 2).c_str());
+      lcd->print(" ms");
 
-      xSemaphoreGive(s_xStatsMutex);
+      // Reset statistics while still holding the mutex
+      Stats.ulTotalPressCount = 0;
+      Stats.ulShortPressCount = 0;
+      Stats.ulLongPressCount = 0;
+      Stats.ulSumShortDuration = 0;
+      Stats.ulSumLongDuration = 0;
+
+      xSemaphoreGive(StatsMutex);
     }
   }
 }
@@ -61,7 +81,7 @@ static void prvTaskReport(void *pvParameters)
 // Create function
 void vTaskReportCreate(SemaphoreHandle_t xStatsMutex)
 {
-  s_xStatsMutex = xStatsMutex;
+  StatsMutex = xStatsMutex;
 
   xTaskCreate(
       prvTaskReport,

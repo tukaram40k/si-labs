@@ -5,6 +5,7 @@ LCDController::LCDController(int address, int cols, int rows) : m_address(addres
 }
 
 void LCDController::setup() {
+  Wire.begin();
   m_lcd->init();
   m_lcd->backlight();
 }

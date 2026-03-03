@@ -7,7 +7,7 @@ static uint32_t s_ulLastPressDuration = 0;
 static bool s_xLastPressIsLong = false;
 
 // Static handles
-static SemaphoreHandle_t s_xPressSemaphore = nullptr;
+static SemaphoreHandle_t PressSemaphore = nullptr;
 static SemaphoreHandle_t s_xDurationMutex = nullptr;
 
 // Button instance - use pointer to avoid static initialization issues
@@ -59,7 +59,7 @@ static void prvTaskMeasure(void *pvParameters)
       }
 
       // Signal Task 2 that a press event occurred
-      xSemaphoreGive(s_xPressSemaphore);
+      xSemaphoreGive(PressSemaphore);
     }
 
     xWasPressed = xIsPressed;
@@ -72,7 +72,7 @@ static void prvTaskMeasure(void *pvParameters)
 // Create function
 void vTaskMeasureCreate(SemaphoreHandle_t xPressSemaphore, SemaphoreHandle_t xDurationMutex)
 {
-  s_xPressSemaphore = xPressSemaphore;
+  PressSemaphore = xPressSemaphore;
   s_xDurationMutex = xDurationMutex;
 
   xTaskCreate(
