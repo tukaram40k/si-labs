@@ -7,12 +7,13 @@
 #include "freertos/semphr.h"
 
 // Statistics structure (for internal use)
-typedef struct {
-    uint32_t ulTotalPressCount;
-    uint32_t ulShortPressCount;
-    uint32_t ulLongPressCount;
-    uint32_t ulSumShortDuration;
-    uint32_t ulSumLongDuration;
+typedef struct
+{
+  uint32_t ulTotalPressCount;
+  uint32_t ulShortPressCount;
+  uint32_t ulLongPressCount;
+  uint32_t ulSumShortDuration;
+  uint32_t ulSumLongDuration;
 } Statistics_t;
 
 // External statistics reference
