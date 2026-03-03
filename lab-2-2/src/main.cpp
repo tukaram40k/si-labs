@@ -8,20 +8,20 @@
 #include "tasks/task_report.h"
 
 // semaphore and mutex handles
-static SemaphoreHandle_t s_xPressSemaphore = nullptr;
-static SemaphoreHandle_t s_xStatsMutex = nullptr;
+static SemaphoreHandle_t PressSemaphore = nullptr;
+static SemaphoreHandle_t StatsMutex = nullptr;
 
 void setup() {
   // semaphore for button press event
-  s_xPressSemaphore = xSemaphoreCreateBinary();
+  PressSemaphore = xSemaphoreCreateBinary();
 
   // mutex for stats
-  s_xStatsMutex = xSemaphoreCreateMutex();
+  StatsMutex = xSemaphoreCreateMutex();
 
   // tasks
-  vTaskMeasureCreate(s_xPressSemaphore, s_xStatsMutex);
-  vTaskStatsCreate(s_xPressSemaphore, s_xStatsMutex);
-  vTaskReportCreate(s_xStatsMutex);
+  vTaskMeasureCreate(PressSemaphore, StatsMutex);
+  vTaskStatsCreate(PressSemaphore, StatsMutex);
+  vTaskReportCreate(StatsMutex);
 
   // start scheduler
   vTaskStartScheduler();

@@ -17,7 +17,7 @@ typedef struct
 } Statistics_t;
 
 // External statistics reference
-extern Statistics_t s_xStats;
+extern Statistics_t Stats;
 
 // Function to create the stats task
 void vTaskStatsCreate(SemaphoreHandle_t xPressSemaphore, SemaphoreHandle_t xStatsMutex);
