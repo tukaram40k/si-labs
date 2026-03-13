@@ -6,6 +6,8 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+// This file is no longer used. See task_acquisition.h and task_conditioning.h
+
 // Function to create the measure task
 void vTaskMeasureCreate(SemaphoreHandle_t xPressSemaphore, SemaphoreHandle_t xDurationMutex);
 
