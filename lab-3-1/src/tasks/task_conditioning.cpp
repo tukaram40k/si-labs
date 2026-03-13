@@ -8,6 +8,8 @@ static conditioning_pipeline_t ntc_pipeline;
 static conditioning_pipeline_t ds18b20_pipeline;
 
 void task_conditioning(void *pvParameters) {
+    // Wait for start gate — ensures setup() has finished
+    xSemaphoreTake(g_start_gate, portMAX_DELAY);
     printf("[COND] Task started on core %d\n", xPortGetCoreID());
 
     pipeline_init(&ntc_pipeline);

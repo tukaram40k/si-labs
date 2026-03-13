@@ -56,8 +56,8 @@
 // ============================================================
 // Task Periods (in ms)
 // ============================================================
-#define TASK_ACQUISITION_PERIOD_MS   50
-#define TASK_CONDITIONING_PERIOD_MS  50
+#define TASK_ACQUISITION_PERIOD_MS   250  // Must be > DS18B20 conversion time (~187ms for 10-bit)
+#define TASK_CONDITIONING_PERIOD_MS  100
 #define TASK_ALERT_PERIOD_MS         50
 #define TASK_DISPLAY_PERIOD_MS       500
 
