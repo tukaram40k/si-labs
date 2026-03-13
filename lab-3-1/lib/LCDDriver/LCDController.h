@@ -1,33 +1,21 @@
-#ifndef LCD_CONTROLLER_H
-#define LCD_CONTROLLER_H
+#ifndef LCDCONTROLLER_H
+#define LCDCONTROLLER_H
 
-#include <Arduino.h>
-#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-// class to control 16x2 LCD via I2C
 class LCDController {
 public:
-  // make a new LCD Controller with I2C address, columns, and rows
-  LCDController(int address, int cols, int rows);
+    LCDController(uint8_t addr, uint8_t cols, uint8_t rows);
 
-  // setup the lcd
-  void setup();
-
-  // clear the lcd
-  void clear();
-
-  // print text to the lcd
-  void print(const char* text);
-
-  // print text at specific position
-  void printAt(int col, int row, const char* text);
+    void begin(int sdaPin = -1, int sclPin = -1);
+    void clear();
+    void print(const char* text, uint8_t col, uint8_t row);
+    void backlight(bool on);
 
 private:
-  LiquidCrystal_I2C* m_lcd; // lcd object
-  int m_address; // i2c address
-  int m_cols; // num of columns
-  int m_rows; // num of rows
+    LiquidCrystal_I2C _lcd;
+    uint8_t _cols;
+    uint8_t _rows;
 };
 
-#endif
+#endif // LCDCONTROLLER_H

@@ -1,24 +1,32 @@
 #include "LCDController.h"
+#include <Wire.h>
 
-LCDController::LCDController(int address, int cols, int rows) : m_address(address), m_cols(cols), m_rows(rows) {
-  m_lcd = new LiquidCrystal_I2C(m_address, m_cols, m_rows);
-}
+LCDController::LCDController(uint8_t addr, uint8_t cols, uint8_t rows)
+    : _lcd(addr, cols, rows), _cols(cols), _rows(rows) {}
 
-void LCDController::setup() {
-  Wire.begin();
-  m_lcd->init();
-  m_lcd->backlight();
+void LCDController::begin(int sdaPin, int sclPin) {
+    // Initialize I2C with explicit SDA/SCL pins if provided
+    if (sdaPin >= 0 && sclPin >= 0) {
+        Wire.begin(sdaPin, sclPin);
+    }
+    _lcd.init();
+    _lcd.backlight();
+    _lcd.clear();
 }
 
 void LCDController::clear() {
-  m_lcd->clear();
+    _lcd.clear();
 }
 
-void LCDController::print(const char* text) {
-  m_lcd->print(text);
+void LCDController::print(const char* text, uint8_t col, uint8_t row) {
+    _lcd.setCursor(col, row);
+    _lcd.print(text);
 }
 
-void LCDController::printAt(int col, int row, const char* text) {
-  m_lcd->setCursor(col, row);
-  m_lcd->print(text);
+void LCDController::backlight(bool on) {
+    if (on) {
+        _lcd.backlight();
+    } else {
+        _lcd.noBacklight();
+    }
 }
