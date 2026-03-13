@@ -51,6 +51,9 @@ extern SemaphoreHandle_t g_mutex_sensor;
 extern SemaphoreHandle_t g_mutex_processed;
 extern SemaphoreHandle_t g_mutex_alert;
 
+// Start gate: all tasks wait on this before running their main loop
+extern SemaphoreHandle_t g_start_gate;
+
 // Initialize shared data and mutexes
 void shared_data_init(void);
 

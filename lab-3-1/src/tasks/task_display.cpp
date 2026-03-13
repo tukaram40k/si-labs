@@ -8,6 +8,8 @@
 extern LiquidCrystal_I2C g_lcd;
 
 void task_display(void *pvParameters) {
+    // Wait for start gate — ensures setup() has finished
+    xSemaphoreTake(g_start_gate, portMAX_DELAY);
     printf("[DISPLAY] Task started on core %d\n", xPortGetCoreID());
 
     // Small delay to let other tasks populate data

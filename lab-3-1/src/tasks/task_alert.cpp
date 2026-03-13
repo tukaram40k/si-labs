@@ -9,6 +9,8 @@ static alert_evaluator_t ntc_alert_eval;
 static alert_evaluator_t ds18b20_alert_eval;
 
 void task_alert(void *pvParameters) {
+    // Wait for start gate — ensures setup() has finished
+    xSemaphoreTake(g_start_gate, portMAX_DELAY);
     printf("[ALERT] Task started on core %d\n", xPortGetCoreID());
 
     alert_evaluator_init(&ntc_alert_eval);

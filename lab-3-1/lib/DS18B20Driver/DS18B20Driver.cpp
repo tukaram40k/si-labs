@@ -5,14 +5,16 @@ DS18B20Driver::DS18B20Driver(uint8_t pin)
 
 void DS18B20Driver::begin() {
     _sensors.begin();
-    // Use asynchronous mode for non-blocking reads
-    _sensors.setWaitForConversion(true);
-    _sensors.setResolution(12); // 12-bit resolution
+    // Use NON-BLOCKING mode so requestTemperatures() returns immediately
+    _sensors.setWaitForConversion(false);
+    _sensors.setResolution(10); // 10-bit resolution (~187ms conversion)
 }
 
 float DS18B20Driver::readTemperature() {
-    _sensors.requestTemperatures();
+    // Read result from the PREVIOUS conversion request
     float tempC = _sensors.getTempCByIndex(0);
+    // Start the NEXT conversion (non-blocking, returns immediately)
+    _sensors.requestTemperatures();
     return tempC;
 }
 

@@ -8,9 +8,10 @@ NTCDriver::NTCDriver(uint8_t pin, float seriesR, float nominalR,
       _nominalT(nominalT), _beta(beta), _adcMax(adcMax), _vRef(vRef) {}
 
 void NTCDriver::begin() {
-    pinMode(_pin, INPUT);
-    // Configure ADC attenuation for full 3.3V range
-    analogSetPinAttenuation(_pin, ADC_11db);
+    // GPIO 34-39 are input-only, no need for pinMode
+    // Configure ADC: 12-bit resolution, 11dB attenuation for full 0-3.3V range
+    analogReadResolution(12);
+    analogSetAttenuation(ADC_11db);
 }
 
 uint16_t NTCDriver::readRawADC() {

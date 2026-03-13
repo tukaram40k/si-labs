@@ -27,7 +27,7 @@ void setup() {
     printf("Alert threshold: %.1f C (+/- %.1f C hysteresis)\n", ALERT_THRESHOLD, ALERT_HYSTERESIS);
     printf("=============================================\n\n");
 
-    // Initialize I2C and LCD in setup() (runs on Core 1, before tasks)
+    // Initialize I2C and LCD in setup()
     printf("[SETUP] Initializing I2C on SDA=%d, SCL=%d...\n", PIN_LCD_SDA, PIN_LCD_SCL);
     Wire.begin(PIN_LCD_SDA, PIN_LCD_SCL);
     delay(100);
@@ -43,62 +43,40 @@ void setup() {
     g_lcd.print("Please wait...");
     printf("[SETUP] LCD initialized OK.\n");
 
-    // Initialize shared data structures and mutexes
+    // Initialize shared data, mutexes, and start gate
     shared_data_init();
     printf("[SETUP] Shared data initialized.\n");
 
-    // Create FreeRTOS tasks
+    // Create all FreeRTOS tasks — they will block on g_start_gate
     BaseType_t ret;
 
-    ret = xTaskCreatePinnedToCore(
-        task_acquisition,
-        "Acquisition",
-        TASK_ACQUISITION_STACK,
-        NULL,
-        3,    // High priority — sensor reading
-        NULL,
-        1     // Core 1
-    );
+    ret = xTaskCreatePinnedToCore(task_acquisition, "Acquisition",
+        TASK_ACQUISITION_STACK, NULL, 3, NULL, 1);
     printf("[SETUP] Acquisition task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
 
-    ret = xTaskCreatePinnedToCore(
-        task_conditioning,
-        "Conditioning",
-        TASK_CONDITIONING_STACK,
-        NULL,
-        2,    // Medium priority — signal processing
-        NULL,
-        1     // Core 1
-    );
+    ret = xTaskCreatePinnedToCore(task_conditioning, "Conditioning",
+        TASK_CONDITIONING_STACK, NULL, 2, NULL, 1);
     printf("[SETUP] Conditioning task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
 
-    ret = xTaskCreatePinnedToCore(
-        task_alert,
-        "Alert",
-        TASK_ALERT_STACK,
-        NULL,
-        2,    // Medium priority — alert detection
-        NULL,
-        0     // Core 0
-    );
+    ret = xTaskCreatePinnedToCore(task_alert, "Alert",
+        TASK_ALERT_STACK, NULL, 2, NULL, 0);
     printf("[SETUP] Alert task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
 
-    ret = xTaskCreatePinnedToCore(
-        task_display,
-        "Display",
-        TASK_DISPLAY_STACK,
-        NULL,
-        1,    // Lower priority — display update
-        NULL,
-        0     // Core 0
-    );
+    ret = xTaskCreatePinnedToCore(task_display, "Display",
+        TASK_DISPLAY_STACK, NULL, 1, NULL, 0);
     printf("[SETUP] Display task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
 
-    printf("[SETUP] All tasks created. System running.\n\n");
+    printf("[SETUP] All tasks created. Opening start gate...\n");
+
+    // Release the start gate for all 4 tasks
+    for (int i = 0; i < 4; i++) {
+        xSemaphoreGive(g_start_gate);
+    }
+
+    printf("[SETUP] Start gate opened. System running.\n\n");
 }
 
 void loop() {
     // FreeRTOS tasks handle everything.
-    // Keep loop alive but idle.
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
