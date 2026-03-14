@@ -5,15 +5,12 @@
 #include "config.h"
 #include <stdint.h>
 
-// ============================================================
-// Alert evaluator with hysteresis and debouncing
-// ============================================================
 typedef struct
 {
-  alert_state_t state;       // Current alert state
-  bool raw_condition;        // Raw threshold result (before debounce)
-  uint32_t persist_start_ms; // When the raw condition started
-  bool persisting;           // Whether we're counting persistence
+  alert_state_t state;
+  bool raw_condition;
+  uint32_t persist_start_ms;
+  bool persisting;
 } alert_evaluator_t;
 
 void alert_evaluator_init(alert_evaluator_t *e);

@@ -11,7 +11,6 @@
 #include "tasks/task_alert.h"
 #include "tasks/task_display.h"
 
-// Global LCD instance — initialized in setup(), used by display task
 #include "LCDController.h"
 LCDController g_lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
@@ -28,16 +27,13 @@ void setup()
   printf("Alert threshold: %.1f C (+/- %.1f C hysteresis)\n", ALERT_THRESHOLD, ALERT_HYSTERESIS);
   printf("=============================================\n\n");
 
-  // Initialize I2C and LCD in setup()
   printf("[SETUP] Initializing LCD on SDA=%d, SCL=%d...\n", PIN_LCD_SDA, PIN_LCD_SCL);
   g_lcd.begin(PIN_LCD_SDA, PIN_LCD_SCL);
   printf("[SETUP] LCD initialized OK.\n");
 
-  // Initialize shared data, mutexes, and start gate
   shared_data_init();
   printf("[SETUP] Shared data initialized.\n");
 
-  // Create all FreeRTOS tasks — they will block on g_start_gate
   BaseType_t ret;
 
   ret = xTaskCreatePinnedToCore(task_acquisition, "Acquisition",
@@ -58,7 +54,6 @@ void setup()
 
   printf("[SETUP] All tasks created. Opening start gate...\n");
 
-  // Release the start gate for all 4 tasks
   for (int i = 0; i < 4; i++)
   {
     xSemaphoreGive(g_start_gate);
@@ -69,6 +64,5 @@ void setup()
 
 void loop()
 {
-  // FreeRTOS tasks handle everything.
   vTaskDelay(pdMS_TO_TICKS(1000));
 }

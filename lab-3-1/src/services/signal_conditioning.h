@@ -3,39 +3,27 @@
 
 #include "config.h"
 
-// ============================================================
-// Saturation: clamp value to [min, max]
-// ============================================================
 float saturate(float value, float minVal, float maxVal);
 
-// ============================================================
-// Median Filter (sliding window)
-// ============================================================
 typedef struct
 {
   float buffer[MEDIAN_WINDOW_SIZE];
   int index;
-  int count; // number of samples inserted so far
+  int count;
 } median_filter_t;
 
 void median_filter_init(median_filter_t *f);
 float median_filter_apply(median_filter_t *f, float sample);
 
-// ============================================================
-// Weighted Moving Average
-// ============================================================
 typedef struct
 {
-  float x[3]; // x[0]=current, x[1]=prev, x[2]=prev-prev
+  float x[3];
   int count;
 } wma_filter_t;
 
 void wma_filter_init(wma_filter_t *f);
 float wma_filter_apply(wma_filter_t *f, float sample);
 
-// ============================================================
-// Combined conditioning pipeline
-// ============================================================
 typedef struct
 {
   median_filter_t median;

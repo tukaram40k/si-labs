@@ -3,13 +3,11 @@
 #include "../shared_data.h"
 #include "../services/signal_conditioning.h"
 
-// Separate pipelines for each sensor
 static conditioning_pipeline_t ntc_pipeline;
 static conditioning_pipeline_t ds18b20_pipeline;
 
 void task_conditioning(void *pvParameters)
 {
-  // Wait for start gate — ensures setup() has finished
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
   printf("[COND] Task started on core %d\n", xPortGetCoreID());
 
@@ -22,7 +20,6 @@ void task_conditioning(void *pvParameters)
 
   for (;;)
   {
-    // --- Read raw sensor data (mutex-protected) ---
     sensor_data_t local_sensor;
     if (xSemaphoreTake(g_mutex_sensor, pdMS_TO_TICKS(10)) == pdTRUE)
     {
@@ -35,17 +32,14 @@ void task_conditioning(void *pvParameters)
       continue;
     }
 
-    // --- Apply conditioning pipeline to NTC temperature ---
     float filtered_ntc = pipeline_apply(&ntc_pipeline, local_sensor.ntc_temp);
 
-    // --- Apply conditioning pipeline to DS18B20 temperature ---
     float filtered_ds = local_sensor.ds18b20_temp;
     if (local_sensor.ds18b20_valid)
     {
       filtered_ds = pipeline_apply(&ds18b20_pipeline, local_sensor.ds18b20_temp);
     }
 
-    // --- Store processed data (mutex-protected) ---
     if (xSemaphoreTake(g_mutex_processed, pdMS_TO_TICKS(10)) == pdTRUE)
     {
       g_processed_data.filtered_ntc_temp = filtered_ntc;
