@@ -85,8 +85,6 @@ void task_display(void *pvParameters)
     g_lcd.setCursor(0, 1);
     g_lcd.print(line1);
 
-    printf("[DISPLAY] LCD: L0=\"%s\" L1=\"%s\"\n", line0, line1);
-
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
 }
