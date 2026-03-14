@@ -4,16 +4,13 @@
 #include "LCDController.h"
 #include <Arduino.h>
 
-// LCD is initialized in main.cpp setup() — use it directly
 extern LCDController g_lcd;
 
 void task_display(void *pvParameters)
 {
-  // Wait for start gate — ensures setup() has finished
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
   printf("[DISPLAY] Task started on core %d\n", xPortGetCoreID());
 
-  // Small delay to let other tasks populate data
   vTaskDelay(pdMS_TO_TICKS(500));
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -25,7 +22,6 @@ void task_display(void *pvParameters)
   {
     reportCount++;
 
-    // --- Read all shared data (mutex-protected) ---
     sensor_data_t local_sensor = {0};
     processed_data_t local_processed = {0};
     alert_data_t local_alert = {ALERT_OFF, ALERT_OFF};
@@ -47,8 +43,6 @@ void task_display(void *pvParameters)
       local_alert = g_alert_data;
       xSemaphoreGive(g_mutex_alert);
     }
-
-    // --- Print detailed info to Serial (printf/STDIO) ---
     printf("\n========== SENSOR REPORT #%lu ==========\n", reportCount);
     printf("NTC Sensor:\n");
     printf("  Raw ADC: %u\n", local_sensor.ntc_adc);
@@ -68,7 +62,6 @@ void task_display(void *pvParameters)
            local_processed.filtered_ds18b20_temp, (float)ALERT_HIGH, (float)ALERT_LOW);
     printf("=========================================\n");
 
-    // --- Update LCD: Row 0 = NTC, Row 1 = DS18B20 ---
     char line0[17];
     char line1[17];
 
