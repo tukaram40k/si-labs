@@ -12,8 +12,8 @@
 #include "tasks/task_display.h"
 
 // Global LCD instance — initialized in setup(), used by display task
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C g_lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
+#include "LCDController.h"
+LCDController g_lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
 void setup()
 {
@@ -29,19 +29,8 @@ void setup()
   printf("=============================================\n\n");
 
   // Initialize I2C and LCD in setup()
-  printf("[SETUP] Initializing I2C on SDA=%d, SCL=%d...\n", PIN_LCD_SDA, PIN_LCD_SCL);
-  Wire.begin(PIN_LCD_SDA, PIN_LCD_SCL);
-  delay(100);
-
-  printf("[SETUP] Initializing LCD at address 0x%02X...\n", LCD_I2C_ADDR);
-  g_lcd.init();
-  delay(100);
-  g_lcd.backlight();
-  g_lcd.clear();
-  g_lcd.setCursor(0, 0);
-  g_lcd.print("System Starting");
-  g_lcd.setCursor(0, 1);
-  g_lcd.print("Please wait...");
+  printf("[SETUP] Initializing LCD on SDA=%d, SCL=%d...\n", PIN_LCD_SDA, PIN_LCD_SCL);
+  g_lcd.begin(PIN_LCD_SDA, PIN_LCD_SCL);
   printf("[SETUP] LCD initialized OK.\n");
 
   // Initialize shared data, mutexes, and start gate
