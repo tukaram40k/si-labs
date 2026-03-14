@@ -1,7 +1,7 @@
 #include "task_conditioning.h"
 #include "../config.h"
 #include "../shared_data.h"
-#include "../signal_conditioning.h"
+#include "../services/signal_conditioning.h"
 
 // Separate pipelines for each sensor
 static conditioning_pipeline_t ntc_pipeline;
