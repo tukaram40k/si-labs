@@ -2,11 +2,16 @@
 #include "../config.h"
 #include "../shared_data.h"
 #include "../services/alert_service.h"
+#include "LedController.h"
 #include <Arduino.h>
 
 // Independent alert evaluators for each sensor
 static alert_evaluator_t ntc_alert_eval;
 static alert_evaluator_t ds18b20_alert_eval;
+
+// LED controllers for each sensor alert
+static LedController *ledNTC = nullptr;   // Red LED - NTC alert
+static LedController *ledDS18B20 = nullptr; // Green LED - DS18B20 alert
 
 void task_alert(void *pvParameters)
 {
@@ -17,9 +22,11 @@ void task_alert(void *pvParameters)
   alert_evaluator_init(&ntc_alert_eval);
   alert_evaluator_init(&ds18b20_alert_eval);
 
-  // Configure LED pins for visual alert indication
-  pinMode(PIN_LED_GREEN, OUTPUT);
-  pinMode(PIN_LED_RED, OUTPUT);
+  // Initialize LED controllers
+  ledNTC = new LedController(PIN_LED_RED);
+  ledDS18B20 = new LedController(PIN_LED_GREEN);
+  ledNTC->setup();
+  ledDS18B20->setup();
   printf("[ALERT] LEDs configured: GREEN=GPIO%d (DS18B20), RED=GPIO%d (NTC)\n", PIN_LED_GREEN, PIN_LED_RED);
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -62,8 +69,16 @@ void task_alert(void *pvParameters)
     // Red LED: NTC (analog) sensor alert
     // Green LED: DS18B20 (digital) sensor alert
     // LEDs are OFF when no alert, ON when alert is active
-    digitalWrite(PIN_LED_RED, ntc_state == ALERT_ON ? HIGH : LOW);
-    digitalWrite(PIN_LED_GREEN, ds18b20_state == ALERT_ON ? HIGH : LOW);
+    if (ntc_state == ALERT_ON) {
+      ledNTC->turnOn();
+    } else {
+      ledNTC->turnOff();
+    }
+    if (ds18b20_state == ALERT_ON) {
+      ledDS18B20->turnOn();
+    } else {
+      ledDS18B20->turnOff();
+    }
 
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }

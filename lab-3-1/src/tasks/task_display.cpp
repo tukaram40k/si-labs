@@ -1,11 +1,11 @@
 #include "task_display.h"
 #include "../config.h"
 #include "../shared_data.h"
-#include <LiquidCrystal_I2C.h>
+#include "LCDController.h"
 #include <Arduino.h>
 
 // LCD is initialized in main.cpp setup() — use it directly
-extern LiquidCrystal_I2C g_lcd;
+extern LCDController g_lcd;
 
 void task_display(void *pvParameters)
 {
@@ -80,10 +80,8 @@ void task_display(void *pvParameters)
              local_alert.ds18b20_alert == ALERT_ON ? "ALR" : "OK");
 
     g_lcd.clear();
-    g_lcd.setCursor(0, 0);
-    g_lcd.print(line0);
-    g_lcd.setCursor(0, 1);
-    g_lcd.print(line1);
+    g_lcd.print(line0, 0, 0);
+    g_lcd.print(line1, 0, 1);
 
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }
