@@ -14,8 +14,6 @@ static LedController *ledDS18B20 = nullptr;
 void task_alert(void *pvParameters)
 {
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
-  printf("[ALERT] Task started on core %d\n", xPortGetCoreID());
-
   alert_evaluator_init(&ntc_alert_eval);
   alert_evaluator_init(&ds18b20_alert_eval);
 
@@ -23,7 +21,6 @@ void task_alert(void *pvParameters)
   ledDS18B20 = new LedController(PIN_LED_GREEN);
   ledNTC->setup();
   ledDS18B20->setup();
-  printf("[ALERT] LEDs configured: GREEN=GPIO%d (DS18B20), RED=GPIO%d (NTC)\n", PIN_LED_GREEN, PIN_LED_RED);
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xPeriod = pdMS_TO_TICKS(TASK_ALERT_PERIOD_MS);

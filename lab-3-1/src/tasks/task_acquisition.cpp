@@ -11,24 +11,16 @@ static DS18B20Driver *ds18b20Sensor = nullptr;
 void task_acquisition(void *pvParameters)
 {
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
-  printf("[ACQ] Task started on core %d\n", xPortGetCoreID());
 
-  printf("[ACQ] Initializing NTC sensor on GPIO%d...\n", PIN_NTC_SENSOR);
   ntcSensor = new NTCDriver(PIN_NTC_SENSOR, NTC_SERIES_RESISTOR,
                             NTC_NOMINAL_RESISTANCE, NTC_NOMINAL_TEMP,
                             NTC_BETA, ADC_RESOLUTION, ADC_VREF);
   ntcSensor->begin();
-  printf("[ACQ] NTC sensor initialized.\n");
 
-  printf("[ACQ] Initializing DS18B20 sensor on GPIO%d...\n", PIN_DS18B20);
   ds18b20Sensor = new DS18B20Driver(PIN_DS18B20);
   ds18b20Sensor->begin();
-  printf("[ACQ] DS18B20 sensor initialized.\n");
-
-  printf("[ACQ] Requesting initial DS18B20 conversion...\n");
   ds18b20Sensor->readTemperature();
   vTaskDelay(pdMS_TO_TICKS(300));
-  printf("[ACQ] Initial conversion done. Starting acquisition loop.\n");
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xPeriod = pdMS_TO_TICKS(TASK_ACQUISITION_PERIOD_MS);
