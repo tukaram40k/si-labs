@@ -2,64 +2,36 @@
 #include <Wire.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-
 #include "config.h"
 #include "shared_data.h"
-
 #include "tasks/task_acquisition.h"
 #include "tasks/task_conditioning.h"
 #include "tasks/task_alert.h"
 #include "tasks/task_display.h"
-
 #include "LCDController.h"
-LCDController g_lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
+
+LCDController lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
 void setup()
 {
   Serial.begin(115200);
   delay(1000);
 
-  printf("\n\n");
-  printf("=============================================\n");
-  printf("  ESP32 FreeRTOS Temperature Monitor System\n");
-  printf("=============================================\n");
-  printf("NTC Pin: GPIO%d, DS18B20 Pin: GPIO%d\n", PIN_NTC_SENSOR, PIN_DS18B20);
-  printf("Alert threshold: %.1f C (+/- %.1f C hysteresis)\n", ALERT_THRESHOLD, ALERT_HYSTERESIS);
-  printf("=============================================\n\n");
-
-  printf("[SETUP] Initializing LCD on SDA=%d, SCL=%d...\n", PIN_LCD_SDA, PIN_LCD_SCL);
-  g_lcd.begin(PIN_LCD_SDA, PIN_LCD_SCL);
-  printf("[SETUP] LCD initialized OK.\n");
+  lcd.begin(PIN_LCD_SDA, PIN_LCD_SCL);
 
   shared_data_init();
-  printf("[SETUP] Shared data initialized.\n");
 
   BaseType_t ret;
 
-  ret = xTaskCreatePinnedToCore(task_acquisition, "Acquisition",
-                                TASK_ACQUISITION_STACK, NULL, 3, NULL, 1);
-  printf("[SETUP] Acquisition task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
-
-  ret = xTaskCreatePinnedToCore(task_conditioning, "Conditioning",
-                                TASK_CONDITIONING_STACK, NULL, 2, NULL, 1);
-  printf("[SETUP] Conditioning task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
-
-  ret = xTaskCreatePinnedToCore(task_alert, "Alert",
-                                TASK_ALERT_STACK, NULL, 2, NULL, 0);
-  printf("[SETUP] Alert task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
-
-  ret = xTaskCreatePinnedToCore(task_display, "Display",
-                                TASK_DISPLAY_STACK, NULL, 1, NULL, 0);
-  printf("[SETUP] Display task created: %s\n", ret == pdPASS ? "OK" : "FAIL");
-
-  printf("[SETUP] All tasks created. Opening start gate...\n");
+  ret = xTaskCreatePinnedToCore(task_acquisition, "Acquisition", TASK_ACQUISITION_STACK, NULL, 3, NULL, 1);
+  ret = xTaskCreatePinnedToCore(task_conditioning, "Conditioning", TASK_CONDITIONING_STACK, NULL, 2, NULL, 1);
+  ret = xTaskCreatePinnedToCore(task_alert, "Alert", TASK_ALERT_STACK, NULL, 2, NULL, 0);
+  ret = xTaskCreatePinnedToCore(task_display, "Display", TASK_DISPLAY_STACK, NULL, 1, NULL, 0);
 
   for (int i = 0; i < 4; i++)
   {
     xSemaphoreGive(g_start_gate);
   }
-
-  printf("[SETUP] Start gate opened. System running.\n\n");
 }
 
 void loop()

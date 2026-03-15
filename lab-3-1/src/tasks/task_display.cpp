@@ -4,24 +4,18 @@
 #include "LCDController.h"
 #include <Arduino.h>
 
-extern LCDController g_lcd;
+extern LCDController lcd;
 
 void task_display(void *pvParameters)
 {
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
-  printf("[DISPLAY] Task started on core %d\n", xPortGetCoreID());
-
   vTaskDelay(pdMS_TO_TICKS(500));
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xPeriod = pdMS_TO_TICKS(TASK_DISPLAY_PERIOD_MS);
 
-  uint32_t reportCount = 0;
-
   for (;;)
   {
-    reportCount++;
-
     sensor_data_t local_sensor = {0};
     processed_data_t local_processed = {0};
     alert_data_t local_alert = {ALERT_OFF, ALERT_OFF};
@@ -43,7 +37,7 @@ void task_display(void *pvParameters)
       local_alert = g_alert_data;
       xSemaphoreGive(g_mutex_alert);
     }
-    printf("\n========== SENSOR REPORT #%lu ==========\n", reportCount);
+    printf("\n========== SENSOR REPORT ==========\n");
     printf("NTC Sensor:\n");
     printf("  Raw ADC: %u\n", local_sensor.ntc_adc);
     printf("  Voltage: %.3f V\n", local_sensor.ntc_voltage);
@@ -60,7 +54,7 @@ void task_display(void *pvParameters)
     printf("  DS18B20: %s (filtered=%.2f, high=%.1f, low=%.1f)\n",
            local_alert.ds18b20_alert == ALERT_ON ? "ALERT" : "OK",
            local_processed.filtered_ds18b20_temp, (float)ALERT_HIGH, (float)ALERT_LOW);
-    printf("=========================================\n");
+    printf("=====================================\n");
 
     char line0[17];
     char line1[17];
@@ -72,9 +66,9 @@ void task_display(void *pvParameters)
              local_processed.filtered_ds18b20_temp,
              local_alert.ds18b20_alert == ALERT_ON ? "ALR" : "OK");
 
-    g_lcd.clear();
-    g_lcd.print(line0, 0, 0);
-    g_lcd.print(line1, 0, 1);
+    lcd.clear();
+    lcd.print(line0, 0, 0);
+    lcd.print(line1, 0, 1);
 
     vTaskDelayUntil(&xLastWakeTime, xPeriod);
   }

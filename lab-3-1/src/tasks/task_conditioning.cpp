@@ -9,11 +9,9 @@ static conditioning_pipeline_t ds18b20_pipeline;
 void task_conditioning(void *pvParameters)
 {
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
-  printf("[COND] Task started on core %d\n", xPortGetCoreID());
 
   pipeline_init(&ntc_pipeline);
   pipeline_init(&ds18b20_pipeline);
-  printf("[COND] Pipelines initialized.\n");
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
   const TickType_t xPeriod = pdMS_TO_TICKS(TASK_CONDITIONING_PERIOD_MS);
