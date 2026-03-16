@@ -22,7 +22,11 @@ typedef struct
 
 typedef struct
 {
+  float saturated_ntc_temp;
+  float median_ntc_temp;
   float filtered_ntc_temp;
+  float saturated_ds18b20_temp;
+  float median_ds18b20_temp;
   float filtered_ds18b20_temp;
 } processed_data_t;
 

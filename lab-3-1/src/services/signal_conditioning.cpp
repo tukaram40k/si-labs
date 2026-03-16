@@ -81,3 +81,13 @@ float pipeline_apply(conditioning_pipeline_t *p, float raw_temp)
 
   return wma_out;
 }
+
+conditioning_result_t pipeline_apply_with_intermediate(conditioning_pipeline_t *p, float raw_temp)
+{
+  conditioning_result_t result;
+  result.saturated = saturate(raw_temp, TEMP_MIN, TEMP_MAX);
+  result.median = median_filter_apply(&p->median, result.saturated);
+  result.wma = wma_filter_apply(&p->wma, result.median);
+
+  return result;
+}

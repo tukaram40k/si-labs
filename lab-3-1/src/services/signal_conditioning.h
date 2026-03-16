@@ -30,7 +30,15 @@ typedef struct
   wma_filter_t wma;
 } conditioning_pipeline_t;
 
+typedef struct
+{
+  float saturated;
+  float median;
+  float wma;
+} conditioning_result_t;
+
 void pipeline_init(conditioning_pipeline_t *p);
 float pipeline_apply(conditioning_pipeline_t *p, float raw_temp);
+conditioning_result_t pipeline_apply_with_intermediate(conditioning_pipeline_t *p, float raw_temp);
 
 #endif // SIGNAL_CONDITIONING_H

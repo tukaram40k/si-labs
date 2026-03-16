@@ -42,10 +42,14 @@ void task_display(void *pvParameters)
     printf("  Raw ADC: %u\n", local_sensor.ntc_adc);
     printf("  Voltage: %.3f V\n", local_sensor.ntc_voltage);
     printf("  Raw Temp: %.2f C\n", local_sensor.ntc_temp);
-    printf("  Filtered Temp: %.2f C\n", local_processed.filtered_ntc_temp);
+    printf("  After Saturation: %.2f C\n", local_processed.saturated_ntc_temp);
+    printf("  After Median Filter: %.2f C\n", local_processed.median_ntc_temp);
+    printf("  After WMA Filter: %.2f C\n", local_processed.filtered_ntc_temp);
     printf("DS18B20 Sensor:\n");
     printf("  Raw Temp: %.2f C\n", local_sensor.ds18b20_temp);
-    printf("  Filtered Temp: %.2f C\n", local_processed.filtered_ds18b20_temp);
+    printf("  After Saturation: %.2f C\n", local_processed.saturated_ds18b20_temp);
+    printf("  After Median Filter: %.2f C\n", local_processed.median_ds18b20_temp);
+    printf("  After WMA Filter: %.2f C\n", local_processed.filtered_ds18b20_temp);
     printf("  Valid: %s\n", local_sensor.ds18b20_valid ? "YES" : "NO");
     printf("Alerts:\n");
     printf("  NTC:     %s (filtered=%.2f, high=%.1f, low=%.1f)\n",

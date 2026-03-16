@@ -30,18 +30,28 @@ void task_conditioning(void *pvParameters)
       continue;
     }
 
-    float filtered_ntc = pipeline_apply(&ntc_pipeline, local_sensor.ntc_temp);
+    conditioning_result_t ntc_result = pipeline_apply_with_intermediate(&ntc_pipeline, local_sensor.ntc_temp);
 
-    float filtered_ds = local_sensor.ds18b20_temp;
+    conditioning_result_t ds_result;
     if (local_sensor.ds18b20_valid)
     {
-      filtered_ds = pipeline_apply(&ds18b20_pipeline, local_sensor.ds18b20_temp);
+      ds_result = pipeline_apply_with_intermediate(&ds18b20_pipeline, local_sensor.ds18b20_temp);
+    }
+    else
+    {
+      ds_result.saturated = 0.0f;
+      ds_result.median = 0.0f;
+      ds_result.wma = 0.0f;
     }
 
     if (xSemaphoreTake(g_mutex_processed, pdMS_TO_TICKS(10)) == pdTRUE)
     {
-      g_processed_data.filtered_ntc_temp = filtered_ntc;
-      g_processed_data.filtered_ds18b20_temp = filtered_ds;
+      g_processed_data.saturated_ntc_temp = ntc_result.saturated;
+      g_processed_data.median_ntc_temp = ntc_result.median;
+      g_processed_data.filtered_ntc_temp = ntc_result.wma;
+      g_processed_data.saturated_ds18b20_temp = ds_result.saturated;
+      g_processed_data.median_ds18b20_temp = ds_result.median;
+      g_processed_data.filtered_ds18b20_temp = ds_result.wma;
       xSemaphoreGive(g_mutex_processed);
     }
 
