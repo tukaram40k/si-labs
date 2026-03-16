@@ -18,7 +18,7 @@ void task_display(void *pvParameters)
   {
     sensor_data_t local_sensor = {0};
     processed_data_t local_processed = {0};
-    alert_data_t local_alert = {ALERT_OFF, ALERT_OFF};
+    alert_data_t local_alert = {ALERT_OFF};
 
     if (xSemaphoreTake(g_mutex_sensor, pdMS_TO_TICKS(10)) == pdTRUE)
     {
@@ -45,17 +45,10 @@ void task_display(void *pvParameters)
     printf("  After Saturation: %.2f C\n", local_processed.saturated_ntc_temp);
     printf("  After Median Filter: %.2f C\n", local_processed.median_ntc_temp);
     printf("  After WMA Filter: %.2f C\n", local_processed.filtered_ntc_temp);
-    printf("DS18B20 Sensor:\n");
-    printf("  Raw Temp: %.2f C\n", local_sensor.ds18b20_temp);
-    printf("  Filtered Temp: %.2f C\n", local_processed.filtered_ds18b20_temp);
-    printf("  Valid: %s\n", local_sensor.ds18b20_valid ? "YES" : "NO");
-    printf("Alerts:\n");
-    printf("  NTC:     %s (filtered=%.2f, high=%.1f, low=%.1f)\n",
+    printf("Alert:\n");
+    printf("  NTC: %s (filtered=%.2f, high=%.1f, low=%.1f)\n",
            local_alert.ntc_alert == ALERT_ON ? "ALERT" : "OK",
            local_processed.filtered_ntc_temp, (float)ALERT_HIGH, (float)ALERT_LOW);
-    printf("  DS18B20: %s (filtered=%.2f, high=%.1f, low=%.1f)\n",
-           local_alert.ds18b20_alert == ALERT_ON ? "ALERT" : "OK",
-           local_processed.filtered_ds18b20_temp, (float)ALERT_HIGH, (float)ALERT_LOW);
     printf("=====================================\n");
 
     char line0[17];
@@ -64,9 +57,6 @@ void task_display(void *pvParameters)
     snprintf(line0, sizeof(line0), "NTC:%.1fC %s",
              local_processed.filtered_ntc_temp,
              local_alert.ntc_alert == ALERT_ON ? "ALR" : "OK");
-    snprintf(line1, sizeof(line1), "DS:%.1fC  %s",
-             local_processed.filtered_ds18b20_temp,
-             local_alert.ds18b20_alert == ALERT_ON ? "ALR" : "OK");
 
     lcd.clear();
     lcd.print(line0, 0, 0);

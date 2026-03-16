@@ -16,8 +16,6 @@ typedef struct
   float ntc_temp;
   uint16_t ntc_adc;
   float ntc_voltage;
-  float ds18b20_temp;
-  bool ds18b20_valid;
 } sensor_data_t;
 
 typedef struct
@@ -25,15 +23,11 @@ typedef struct
   float saturated_ntc_temp;
   float median_ntc_temp;
   float filtered_ntc_temp;
-  float saturated_ds18b20_temp;
-  float median_ds18b20_temp;
-  float filtered_ds18b20_temp;
 } processed_data_t;
 
 typedef struct
 {
   alert_state_t ntc_alert;
-  alert_state_t ds18b20_alert;
 } alert_data_t;
 
 extern sensor_data_t g_sensor_data;
