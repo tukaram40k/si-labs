@@ -3,8 +3,6 @@
 
 // Pin Configuration
 #define PIN_NTC_SENSOR 34    // ADC1_CH6
-#define PIN_DS18B20 18       // 1-Wire data pin
-#define PIN_LED_GREEN 16     // DS18B20 alert
 #define PIN_LED_RED 17       // NTC alert
 #define PIN_LCD_SDA 21
 #define PIN_LCD_SCL 22
