@@ -5,21 +5,16 @@
 #include "LedController.h"
 #include <Arduino.h>
 
-static alert_evaluator_t ntc_alert_eval;
 static alert_evaluator_t ds18b20_alert_eval;
 
-static LedController *ledNTC = nullptr;
 static LedController *ledDS18B20 = nullptr;
 
 void task_alert(void *pvParameters)
 {
   xSemaphoreTake(g_start_gate, portMAX_DELAY);
-  alert_evaluator_init(&ntc_alert_eval);
   alert_evaluator_init(&ds18b20_alert_eval);
 
-  ledNTC = new LedController(PIN_LED_RED);
-  ledDS18B20 = new LedController(PIN_LED_GREEN);
-  ledNTC->setup();
+  ledDS18B20 = new LedController(PIN_LED_RED);
   ledDS18B20->setup();
 
   TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -41,24 +36,15 @@ void task_alert(void *pvParameters)
       continue;
     }
 
-    alert_state_t ntc_state = alert_evaluator_update(
-        &ntc_alert_eval, local_processed.filtered_ntc_temp, now_ms);
-
     alert_state_t ds18b20_state = alert_evaluator_update(
-        &ds18b20_alert_eval, local_processed.filtered_ds18b20_temp, now_ms);
+        &ds18b20_alert_eval, local_processed.saturated_ds18b20_temp, now_ms);
 
     if (xSemaphoreTake(g_mutex_alert, pdMS_TO_TICKS(10)) == pdTRUE)
     {
-      g_alert_data.ntc_alert = ntc_state;
       g_alert_data.ds18b20_alert = ds18b20_state;
       xSemaphoreGive(g_mutex_alert);
     }
 
-    if (ntc_state == ALERT_ON) {
-      ledNTC->turnOn();
-    } else {
-      ledNTC->turnOff();
-    }
     if (ds18b20_state == ALERT_ON) {
       ledDS18B20->turnOn();
     } else {
