@@ -3,23 +3,28 @@
 #include <string.h>
 #include "../lib/IO/IO.h"
 #include "../lib/LedDriver/LedController.h"
-#include "../lib/Scheduler/Scheduler.h"
-#include "../lib/Tasks/Tasks.h"
+
+#include <IRremote.hpp>
+
+#define IR_RECEIVE_PIN 2
+#define ACTUATOR_PIN 7
 
 void setup() {
-  // redirect stdio to serial
-  IO::setup();
-
-  // initialize tasks
-  tasksInit();
-
-  // start scheduler (1ms system tick)
-  Scheduler::getInstance().begin();
-
-  printf("Ready\n");
+  pinMode(ACTUATOR_PIN, OUTPUT);
+  IrReceiver.begin(IR_RECEIVE_PIN);
 }
 
 void loop() {
-  // run non-preemptive scheduler
-  Scheduler::getInstance().run();
+  if (IrReceiver.decode()) {
+    unsigned long code = IrReceiver.decodedIRData.decodedRawData;
+
+    if (code == 0xEA15FF00) {
+      digitalWrite(ACTUATOR_PIN, HIGH);
+    } 
+    else if (code == 0xF807FF00) {
+      digitalWrite(ACTUATOR_PIN, LOW);
+    }
+
+    IrReceiver.resume();
+  }
 }
