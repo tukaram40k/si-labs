@@ -1,21 +1,14 @@
 #include <Arduino.h>
 #include <stdio.h>
-
 #include "../lib/IO/IO.h"
-
 #include "../lib/Actuator/Actuator.h"
 #include "../lib/LedDriver/LedController.h"
 #include "../lib/RemoteDriver/RemoteDriver.h"
 #include "../lib/Scheduler/Scheduler.h"
+#include "Tasks/task_actuator_control.h"
+#include "Tasks/task_signal_conditioning.h"
+#include "Tasks/task_reporting.h"
 
-#include "task_actuator_control.h"
-#include "task_signal_conditioning.h"
-#include "task_reporting.h"
-
-// Real setup:
-// - IR receive pin: D2
-// - Relay signal pin: D7
-// - LED is powered through the relay contacts (not connected to a GPIO pin)
 static constexpr uint8_t IR_RECEIVE_PIN = 2;
 static constexpr uint8_t RELAY_PIN = 7;
 

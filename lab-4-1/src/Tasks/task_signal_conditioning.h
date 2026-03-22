@@ -2,7 +2,7 @@
 #define TASK_SIGNAL_CONDITIONING_H
 
 #include <Arduino.h>
-#include "../lib/Actuator/Actuator.h"
+#include "../../lib/Actuator/Actuator.h"
 
 struct ConditioningConfig {
   uint16_t debounceMs;
