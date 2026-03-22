@@ -12,10 +12,12 @@ namespace IO {
   }
 
   int serial_getchar(FILE *stream) {
-    while (!Serial.available());
-    char c = Serial.read();
+    if (!Serial.available()) {
+      return -1; // non-blocking: signal "no char"
+    }
+    char c = (char)Serial.read();
     Serial.write(c);
-    return c;
+    return (int)c;
   }
   
   void setup() {

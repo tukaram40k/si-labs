@@ -1,30 +1,61 @@
 #include <Arduino.h>
 #include <stdio.h>
-#include <string.h>
+
 #include "../lib/IO/IO.h"
+
+#include "../lib/Actuator/Actuator.h"
 #include "../lib/LedDriver/LedController.h"
+#include "../lib/RemoteDriver/RemoteDriver.h"
+#include "../lib/Scheduler/Scheduler.h"
 
-#include <IRremote.hpp>
+#include "task_actuator_control.h"
+#include "task_signal_conditioning.h"
+#include "task_reporting.h"
 
-#define IR_RECEIVE_PIN 2
-#define ACTUATOR_PIN 7
+// Real setup:
+// - IR receive pin: D2
+// - Relay signal pin: D7
+// - LED is powered through the relay contacts (not connected to a GPIO pin)
+static constexpr uint8_t IR_RECEIVE_PIN = 2;
+static constexpr uint8_t RELAY_PIN = 7;
+
+static Actuator g_actuator({ .relayPin = RELAY_PIN, .activeHigh = true }, nullptr);
+
+static RemoteDriver g_remote({
+  .irReceivePin = IR_RECEIVE_PIN,
+  .codeOn = 0xEA15FF00,
+  .codeOff = 0xF807FF00,
+});
+
+static void task_control_wrapper() { task_actuator_control_tick(); }
+static void task_conditioning_wrapper() { task_signal_conditioning_tick(); }
+static void task_reporting_wrapper() { task_reporting_tick(); }
+
+static TaskItem g_tasks[] = {
+  { .fn = task_control_wrapper, .periodMs = 50, .nextRunAt = 0 },
+  { .fn = task_conditioning_wrapper, .periodMs = 50, .nextRunAt = 0 },
+  { .fn = task_reporting_wrapper, .periodMs = 500, .nextRunAt = 0 },
+};
+
+static Scheduler g_scheduler(g_tasks, sizeof(g_tasks) / sizeof(g_tasks[0]));
 
 void setup() {
-  pinMode(ACTUATOR_PIN, OUTPUT);
-  IrReceiver.begin(IR_RECEIVE_PIN);
+  IO::setup();
+
+  g_actuator.setup();
+  g_remote.setup();
+
+  task_actuator_control_setup();
+  task_actuator_control_bind_remote(&g_remote);
+
+  task_signal_conditioning_setup({ .debounceMs = 100, .requiredStableSamples = 2 }, &g_actuator);
+  task_reporting_setup(&g_actuator);
+
+  printf("Binary actuator ready. Send ON/OFF over serial, or use the IR remote.\n");
+
+  g_scheduler.start(millis());
 }
 
 void loop() {
-  if (IrReceiver.decode()) {
-    unsigned long code = IrReceiver.decodedIRData.decodedRawData;
-
-    if (code == 0xEA15FF00) {
-      digitalWrite(ACTUATOR_PIN, HIGH);
-    } 
-    else if (code == 0xF807FF00) {
-      digitalWrite(ACTUATOR_PIN, LOW);
-    }
-
-    IrReceiver.resume();
-  }
+  g_scheduler.tick(millis());
 }
