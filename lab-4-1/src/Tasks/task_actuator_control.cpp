@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../lib/Actuator/Actuator.h"
-#include "../lib/RemoteDriver/RemoteDriver.h"
+#include "../../lib/Actuator/Actuator.h"
+#include "../../lib/RemoteDriver/RemoteDriver.h"
 
 // -------- shared state (input -> conditioning -> actuator) --------
 
