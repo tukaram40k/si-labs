@@ -23,8 +23,8 @@ static Actuator g_actuator({ .relayPin = RELAY_PIN, .activeHigh = true }, nullpt
 
 static RemoteDriver g_remote({
   .irReceivePin = IR_RECEIVE_PIN,
-  .codeOn = 0xEA15FF00,
-  .codeOff = 0xF807FF00,
+  .codeOn = 0x180C,
+  .codeOff = 0x100C,
 });
 
 static void task_control_wrapper() { task_actuator_control_tick(); }
@@ -51,7 +51,7 @@ void setup() {
   task_signal_conditioning_setup({ .debounceMs = 100, .requiredStableSamples = 2 }, &g_actuator);
   task_reporting_setup(&g_actuator);
 
-  printf("Binary actuator ready. Send ON/OFF over serial, or use the IR remote.\n");
+  printf("\n====== Ready ======\n\n");
 
   g_scheduler.start(millis());
 }

@@ -17,8 +17,11 @@ public:
 
   void setup();
 
-  // Returns true if a command was received, with outOn set accordingly.
-  bool poll(bool& outOn);
+  // Poll for one IR frame.
+  // Returns true if *anything* was received.
+  // - If the code matches codeOn/codeOff: outKnown=true and outOn is set.
+  // - Otherwise: outKnown=false (unknown code)
+  bool poll(bool& outOn, bool& outKnown, uint32_t& outRawCode);
 
 private:
   Config m_cfg;
