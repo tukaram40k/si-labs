@@ -2,7 +2,6 @@
 #define ACTUATOR_H
 
 #include <Arduino.h>
-#include "../LedDriver/LedController.h"
 
 enum class ActuatorState : uint8_t {
   OFF = 0,
@@ -15,10 +14,10 @@ struct ActuatorConfig {
   bool activeHigh;
 };
 
-// Binary actuator (relay-driven LED). Owns the relay output and a status LED.
+// Binary actuator (relay). Owns only the relay output.
 class Actuator {
 public:
-  Actuator(const ActuatorConfig& cfg, LedController* statusLed);
+  Actuator(const ActuatorConfig& cfg, void* /*unused*/);
 
   void setup();
 
@@ -31,11 +30,9 @@ private:
   void applyOutputs();
 
   ActuatorConfig m_cfg;
-  LedController* m_statusLed;
   ActuatorState m_state;
 };
 
-// C-style interface as requested by the lab text.
 ActuatorState actuator_get_state();
 
 #endif
