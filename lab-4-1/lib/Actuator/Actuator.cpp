@@ -2,15 +2,12 @@
 
 static Actuator* g_actuator = nullptr;
 
-Actuator::Actuator(const ActuatorConfig& cfg, LedController* statusLed)
-  : m_cfg(cfg), m_statusLed(statusLed), m_state(ActuatorState::OFF) {
+Actuator::Actuator(const ActuatorConfig& cfg, void*)
+  : m_cfg(cfg), m_state(ActuatorState::OFF) {
 }
 
 void Actuator::setup() {
   pinMode(m_cfg.relayPin, OUTPUT);
-  if (m_statusLed) {
-    m_statusLed->setup();
-  }
   applyOutputs();
   g_actuator = this;
 }
@@ -32,10 +29,6 @@ void Actuator::applyOutputs() {
   const bool on = (m_state == ActuatorState::ON);
   const bool relayLevel = m_cfg.activeHigh ? on : !on;
   digitalWrite(m_cfg.relayPin, relayLevel ? HIGH : LOW);
-
-  if (m_statusLed) {
-    on ? m_statusLed->turnOn() : m_statusLed->turnOff();
-  }
 }
 
 ActuatorState actuator_get_state() {

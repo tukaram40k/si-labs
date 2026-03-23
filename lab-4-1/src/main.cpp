@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "../lib/IO/IO.h"
 #include "../lib/Actuator/Actuator.h"
-#include "../lib/LedDriver/LedController.h"
 #include "../lib/RemoteDriver/RemoteDriver.h"
 #include "../lib/Scheduler/Scheduler.h"
 #include "Tasks/task_actuator_control.h"
