@@ -33,3 +33,5 @@
 
 # Directory-specific
 indent.log
+
+lab*/*.md
