@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <stdbool.h>
 
+#include "task_conditioning.h"
+
 namespace TaskReporting
 {
   struct Config
@@ -14,8 +16,7 @@ namespace TaskReporting
 
   // Call periodically from loop(); prints a report.
   void tick(
-      int rawCmdDeg,
-      int conditionedCmdDeg,
+      const TaskConditioning::State &cond,
       int actuatorPosDeg,
       bool limitReached);
 }

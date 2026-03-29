@@ -22,8 +22,7 @@ namespace TaskReporting
   }
 
   void tick(
-      int rawCmdDeg,
-      int conditionedCmdDeg,
+      const TaskConditioning::State &cond,
       int actuatorPosDeg,
       bool limitReached)
   {
@@ -34,11 +33,15 @@ namespace TaskReporting
     }
     lastMs = now;
 
-    printf("[%lu] raw=%d deg | conditioned=%d deg | actuator=%d deg | limit=%s\n",
-           (unsigned long)seq++,
-           rawCmdDeg,
-           conditionedCmdDeg,
-           actuatorPosDeg,
-           limitReached ? "YES" : "NO");
+    printf(
+        "[%lu] raw=%d | sat=%d | med=%d | wma=%d | ramp=%d | act=%d | limit=%s\n",
+        (unsigned long)seq++,
+        cond.rawCmdDeg,
+        cond.saturatedDeg,
+        cond.medianDeg,
+        cond.averagedDeg,
+        cond.rampedDeg,
+        actuatorPosDeg,
+        limitReached ? "YES" : "NO");
   }
 }
