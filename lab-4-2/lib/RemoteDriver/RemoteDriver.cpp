@@ -1,15 +1,19 @@
 #include "RemoteDriver.h"
 #include <IRremote.hpp>
 
-RemoteDriver::RemoteDriver(const Config& cfg) : m_cfg(cfg) {
+RemoteDriver::RemoteDriver(const Config &cfg) : m_cfg(cfg)
+{
 }
 
-void RemoteDriver::setup() {
+void RemoteDriver::setup()
+{
   IrReceiver.begin(m_cfg.irReceivePin);
 }
 
-bool RemoteDriver::poll(bool& outOn, bool& outKnown, uint32_t& outRawCode) {
-  if (!IrReceiver.decode()) {
+bool RemoteDriver::poll(Button &outButton, uint32_t &outRawCode)
+{
+  if (!IrReceiver.decode())
+  {
     return false;
   }
 
@@ -17,17 +21,23 @@ bool RemoteDriver::poll(bool& outOn, bool& outKnown, uint32_t& outRawCode) {
   IrReceiver.resume();
 
   outRawCode = code;
-  outKnown = false;
 
-  if (code == m_cfg.codeOn) {
-    outOn = true;
-    outKnown = true;
-    return true;
+  outButton = Button::Unknown;
+  if (code == m_cfg.codeUp)
+  {
+    outButton = Button::Up;
   }
-  if (code == m_cfg.codeOff) {
-    outOn = false;
-    outKnown = true;
-    return true;
+  else if (code == m_cfg.codeRight)
+  {
+    outButton = Button::Right;
+  }
+  else if (code == m_cfg.codeDown)
+  {
+    outButton = Button::Down;
+  }
+  else if (code == m_cfg.codeLeft)
+  {
+    outButton = Button::Left;
   }
 
   return true;

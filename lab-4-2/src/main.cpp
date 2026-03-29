@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <stdio.h>
 #include "IO.h"
+#include "RemoteDriver.h"
+
 #include "task_actuator_control.h"
 #include "task_conditioning.h"
 #include "task_reporting.h"
@@ -76,11 +78,60 @@ namespace
       printf("\nERR: line too long\n");
     }
   }
+
+  // --- IR remote handling ---
+  constexpr uint8_t kIrPin = 2;
+
+  // Codes from src/IRCodes.cpp
+  constexpr uint32_t kCodeUp = 0xD92655AA;
+  constexpr uint32_t kCodeRight = 0xDB2455AA;
+  constexpr uint32_t kCodeDown = 0xD82755AA;
+
+  // RemoteDriver is ON/OFF oriented; we use it for raw decoding and map codes ourselves.
+  RemoteDriver g_remote(RemoteDriver::Config{
+      .irReceivePin = kIrPin,
+      .codeUp = kCodeUp,
+      .codeRight = kCodeRight,
+      .codeDown = kCodeDown,
+      .codeLeft = 0xDA2555AA,
+  });
+
+  static void pollRemote()
+  {
+    RemoteDriver::Button btn = RemoteDriver::Button::Unknown;
+    uint32_t raw = 0;
+    if (!g_remote.poll(btn, raw))
+    {
+      return;
+    }
+
+    int deg = -1;
+    if (btn == RemoteDriver::Button::Up)
+      deg = 0;
+    else if (btn == RemoteDriver::Button::Right)
+      deg = 90;
+    else if (btn == RemoteDriver::Button::Down)
+      deg = 180;
+
+    if (deg >= 0)
+    {
+      g_lastRawCmdDeg = deg;
+      TaskConditioning::setRawCommandDeg(deg);
+      printf("IR: raw command = %d deg\n", deg);
+    }
+    else
+    {
+      // Unknown/unused code; keep quiet to avoid log spam.
+      (void)raw;
+    }
+  }
 }
 
 void setup()
 {
   IO::setup();
+
+  g_remote.setup();
 
   TaskConditioning::setup(TaskConditioning::Config{
       .minDeg = 0,
@@ -112,6 +163,9 @@ void loop()
 {
   // Input task (serial/stdin)
   pollCommandInput();
+
+  // IR remote task
+  pollRemote();
 
   // Conditioning task
   TaskConditioning::tick();

@@ -1,4 +1,0 @@
-#define UP 0xD92655AA
-#define RIGHT 0xDB2455AA
-#define DOWN 0xD82755AA
-#define LEFT 0xDA2555AA
