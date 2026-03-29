@@ -4,13 +4,25 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-// Decodes IR remote commands into ON/OFF requests.
+// Decodes IR remote commands into buttons.
 class RemoteDriver {
 public:
   struct Config {
     uint8_t irReceivePin;
-    uint32_t codeOn;
-    uint32_t codeOff;
+
+    // Button codes (see src/IRCodes.cpp)
+    uint32_t codeUp;
+    uint32_t codeRight;
+    uint32_t codeDown;
+    uint32_t codeLeft;
+  };
+
+  enum class Button : uint8_t {
+    Unknown = 0,
+    Up,
+    Right,
+    Down,
+    Left,
   };
 
   explicit RemoteDriver(const Config& cfg);
@@ -19,9 +31,8 @@ public:
 
   // Poll for one IR frame.
   // Returns true if *anything* was received.
-  // - If the code matches codeOn/codeOff: outKnown=true and outOn is set.
-  // - Otherwise: outKnown=false (unknown code)
-  bool poll(bool& outOn, bool& outKnown, uint32_t& outRawCode);
+  // outButton is set to Unknown if the code wasn't recognized.
+  bool poll(Button& outButton, uint32_t& outRawCode);
 
 private:
   Config m_cfg;
