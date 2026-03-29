@@ -88,27 +88,18 @@ namespace TaskConditioning
     g_state.saturatedDeg = sat;
     g_state.limitReached = (sat != g_state.rawCmdDeg);
 
-    // Minimal-but-useful conditioning:
-    // - saturation
-    // - median-3 (impulse noise removal)
-    // - weighted moving average (small fluctuation reduction)
-    // - ramping (smooth actuator motion)
-    // To keep responsiveness, bypass median/avg on large step changes.
-
     const int bypass = (g_cfg.stepBypassDeg <= 0) ? 9999 : g_cfg.stepBypassDeg;
     const int deltaFromPrev = (sat >= g_state.averagedDeg) ? (sat - g_state.averagedDeg) : (g_state.averagedDeg - sat);
 
     int preRampTarget = sat;
     if (deltaFromPrev < bypass)
     {
-      // median filter
       h0 = h1;
       h1 = h2;
       h2 = sat;
       const int med = median3(h0, h1, h2);
       g_state.medianDeg = med;
 
-      // weighted average (exponential smoothing)
       const float w = (g_cfg.wNew < 0.0f) ? 0.0f : ((g_cfg.wNew > 1.0f) ? 1.0f : g_cfg.wNew);
       avg = (w * (float)med) + ((1.0f - w) * avg);
       const int avgInt = (int)(avg + 0.5f);
@@ -117,13 +108,10 @@ namespace TaskConditioning
     }
     else
     {
-      // Bypass smoothing for big changes.
       g_state.medianDeg = sat;
       g_state.averagedDeg = sat;
       avg = (float)sat;
       preRampTarget = sat;
-
-      // Reset history so the next small changes don't get polluted by old samples.
       h0 = h1 = h2 = sat;
     }
 
