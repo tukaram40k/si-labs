@@ -2,13 +2,15 @@
 
 #include <Arduino.h>
 
-namespace TaskActuatorControl {
-  struct Config {
+namespace TaskActuatorControl
+{
+  struct Config
+  {
     uint8_t servoPin;
     uint16_t periodMs; // control update period
   };
 
-  void setup(const Config& cfg);
+  void setup(const Config &cfg);
 
   // Set desired actuator position (degrees). The value is assumed already conditioned.
   void commandPositionDeg(int positionDeg);

@@ -2,14 +2,17 @@
 
 #include <stdio.h>
 
-namespace {
+namespace
+{
   TaskReporting::Config g_cfg{2000};
   uint32_t lastMs = 0;
   uint32_t seq = 0;
 }
 
-namespace TaskReporting {
-  void setup(const Config& cfg) {
+namespace TaskReporting
+{
+  void setup(const Config &cfg)
+  {
     g_cfg = cfg;
     lastMs = millis();
     seq = 0;
@@ -19,13 +22,14 @@ namespace TaskReporting {
   }
 
   void tick(
-    int rawCmdDeg,
-    int conditionedCmdDeg,
-    int actuatorPosDeg,
-    bool limitReached
-  ) {
+      int rawCmdDeg,
+      int conditionedCmdDeg,
+      int actuatorPosDeg,
+      bool limitReached)
+  {
     const uint32_t now = millis();
-    if ((uint32_t)(now - lastMs) < g_cfg.periodMs) {
+    if ((uint32_t)(now - lastMs) < g_cfg.periodMs)
+    {
       return;
     }
     lastMs = now;
