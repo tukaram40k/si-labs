@@ -3,18 +3,19 @@
 #include <Arduino.h>
 #include <stdbool.h>
 
-namespace TaskReporting {
-  struct Config {
+namespace TaskReporting
+{
+  struct Config
+  {
     uint16_t periodMs;
   };
 
-  void setup(const Config& cfg);
+  void setup(const Config &cfg);
 
   // Call periodically from loop(); prints a report.
   void tick(
-    int rawCmdDeg,
-    int conditionedCmdDeg,
-    int actuatorPosDeg,
-    bool limitReached
-  );
+      int rawCmdDeg,
+      int conditionedCmdDeg,
+      int actuatorPosDeg,
+      bool limitReached);
 }
