@@ -1,5 +1,4 @@
 #include "task_reporting.h"
-
 #include <stdio.h>
 
 namespace
@@ -17,8 +16,7 @@ namespace TaskReporting
     lastMs = millis();
     seq = 0;
 
-    printf("\n--- Servo control ready ---\n");
-    printf("Type an angle (0..180) and press Enter.\n\n");
+    printf("\n--- Ready ---\n\n");
   }
 
   void tick(

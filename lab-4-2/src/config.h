@@ -1,19 +1,14 @@
 #pragma once
-
 #include <Arduino.h>
-
 #include "RemoteDriver.h"
 #include "tasks/task_actuator_control.h"
 #include "tasks/task_conditioning.h"
 #include "tasks/task_reporting.h"
 
-// Centralized lab configuration.
 namespace Config {
-  // --- Hardware pins ---
   constexpr uint8_t IR_PIN = 2;
   constexpr uint8_t SERVO_PIN = 7;
 
-  // --- IR codes (from src/IRCodes.cpp) ---
   constexpr uint32_t IR_CODE_UP = 0xD92655AA;
   constexpr uint32_t IR_CODE_RIGHT = 0xDB2455AA;
   constexpr uint32_t IR_CODE_DOWN = 0xD82755AA;
@@ -27,7 +22,6 @@ namespace Config {
       .codeLeft = IR_CODE_LEFT,
   };
 
-  // --- Task configs ---
   inline constexpr TaskConditioning::Config CONDITIONING_CFG{
       .minDeg = 0,
       .maxDeg = 180,

@@ -1,5 +1,4 @@
 #include "task_actuator_control.h"
-
 #include "ServoDriver.h"
 
 namespace

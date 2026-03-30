@@ -9,17 +9,14 @@
 
 namespace
 {
-  // Raw command as typed by the user (may be out of range).
   volatile int g_lastRawCmdDeg = 0;
 
-  // Non-blocking line reader state.
   char g_lineBuf[16];
   uint8_t g_lineLen = 0;
 
   static void handleLine(const char *line)
   {
     int deg = 0;
-    // Accept leading/trailing whitespace and an integer.
     if (sscanf(line, "%d", &deg) == 1)
     {
       g_lastRawCmdDeg = deg;
@@ -28,22 +25,21 @@ namespace
     }
     else
     {
-      printf("ERR: please type an integer angle (e.g. 0, 90, 180)\n");
+      printf("ERR: please type an integer angle\n");
     }
   }
 
-  // Reads from stdin (serial) without blocking.
   static void pollCommandInput()
   {
     int c = getchar();
     if (c < 0)
     {
-      return; // no char available
+      return;
     }
 
     if (c == '\r')
     {
-      return; // ignore CR (we use LF as terminator)
+      return;
     }
 
     if (c == '\n')
@@ -57,7 +53,6 @@ namespace
       return;
     }
 
-    // Basic line editing: backspace.
     if (c == 0x08 || c == 0x7F)
     {
       if (g_lineLen > 0)
@@ -73,7 +68,6 @@ namespace
     }
     else
     {
-      // overflow: reset line
       g_lineLen = 0;
       printf("\nERR: line too long\n");
     }
@@ -107,7 +101,6 @@ namespace
     }
     else
     {
-      // Unknown/unused code; keep quiet to avoid log spam.
       (void)raw;
     }
   }
@@ -123,17 +116,13 @@ void setup()
   TaskActuatorControl::setup(Config::ACTUATOR_CFG);
   TaskReporting::setup(Config::REPORTING_CFG);
 
-  // Seed with a safe known command.
   g_lastRawCmdDeg = 0;
   TaskConditioning::setRawCommandDeg(0);
 }
 
 void loop()
 {
-  // Input task (serial/stdin)
   pollCommandInput();
-
-  // IR remote task
   pollRemote();
 
   // Conditioning task
