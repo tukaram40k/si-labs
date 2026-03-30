@@ -6,8 +6,6 @@ namespace
   TaskConditioning::State g_state{};
 
   int g_rawLatched = 0;
-
-  // median history (3 samples)
   int h0 = 0, h1 = 0, h2 = 0;
 
   float avg = 0.0f;
