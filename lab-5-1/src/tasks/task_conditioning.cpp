@@ -18,8 +18,10 @@ namespace
 
   int clampInt(int v, int lo, int hi)
   {
-    if (v < lo) return lo;
-    if (v > hi) return hi;
+    if (v < lo)
+      return lo;
+    if (v > hi)
+      return hi;
     return v;
   }
 
@@ -113,11 +115,12 @@ namespace TaskConditioning
         return;
       }
 
-      if (!g_state.relayRequestOn && g_state.humidityPct < g_state.lowerThresholdPct)
+      // Inverse action: relay ON at high humidity, OFF at low humidity.
+      if (!g_state.relayRequestOn && g_state.humidityPct > g_state.upperThresholdPct)
       {
         g_state.relayRequestOn = true;
       }
-      else if (g_state.relayRequestOn && g_state.humidityPct > g_state.upperThresholdPct)
+      else if (g_state.relayRequestOn && g_state.humidityPct < g_state.lowerThresholdPct)
       {
         g_state.relayRequestOn = false;
       }
