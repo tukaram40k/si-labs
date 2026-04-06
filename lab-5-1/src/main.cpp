@@ -13,9 +13,6 @@ void setup()
   TaskConditioning::setup(Config::CONDITIONING_CFG);
   TaskActuatorControl::setup(Config::ACTUATOR_CFG);
   TaskReporting::setup(Config::REPORTING_CFG);
-
-  printf("Humidity ON-OFF control with hysteresis\n");
-  printf("Pins: relay=%u, dht11=%u, up=%u, down=%u\n", Config::RELAY_PIN, Config::DHT11_PIN, Config::BTN_UP_PIN, Config::BTN_DOWN_PIN);
 }
 
 void loop()
