@@ -6,7 +6,7 @@
 
 namespace Config
 {
-  constexpr uint8_t RELAY_PIN = 12;
+  constexpr uint8_t SERVO_PIN = 7;
   constexpr uint8_t DHT11_PIN = 3;
   constexpr uint8_t BTN_UP_PIN = 9;
   constexpr uint8_t BTN_DOWN_PIN = 8;
@@ -28,8 +28,7 @@ namespace Config
   };
 
   inline constexpr TaskActuatorControl::Config ACTUATOR_CFG{
-      .relayPin = RELAY_PIN,
-      .relayActiveHigh = true,
+      .servoPin = SERVO_PIN,
       .periodMs = 50,
   };
 

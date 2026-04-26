@@ -15,5 +15,5 @@ namespace TaskReporting
   void setup(const Config &cfg);
   void tick(
       const TaskConditioning::State &cond,
-      bool relayOn);
+      bool actuatorOn);
 }
