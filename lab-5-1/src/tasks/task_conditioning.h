@@ -30,7 +30,7 @@ namespace TaskConditioning
     int setPointPct;
     float lowerThresholdPct;
     float upperThresholdPct;
-    bool relayRequestOn;
+    bool actuatorRequestOn;
   };
 
   void setup(const Config &cfg);

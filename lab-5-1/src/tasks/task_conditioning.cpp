@@ -54,7 +54,7 @@ namespace TaskConditioning
     g_state.humidityPct = 0.0f;
     g_state.humidityValid = false;
     g_state.setPointPct = clampInt(g_cfg.setPointInitPct, g_cfg.setPointMinPct, g_cfg.setPointMaxPct);
-    g_state.relayRequestOn = false;
+    g_state.actuatorRequestOn = false;
     updateThresholds();
 
     const uint32_t now = millis();
@@ -115,14 +115,14 @@ namespace TaskConditioning
         return;
       }
 
-      // Inverse action: relay ON at high humidity, OFF at low humidity.
-      if (!g_state.relayRequestOn && g_state.humidityPct > g_state.upperThresholdPct)
+      // Inverse action: actuator ON at high humidity, OFF at low humidity.
+      if (!g_state.actuatorRequestOn && g_state.humidityPct > g_state.upperThresholdPct)
       {
-        g_state.relayRequestOn = true;
+        g_state.actuatorRequestOn = true;
       }
-      else if (g_state.relayRequestOn && g_state.humidityPct < g_state.lowerThresholdPct)
+      else if (g_state.actuatorRequestOn && g_state.humidityPct < g_state.lowerThresholdPct)
       {
-        g_state.relayRequestOn = false;
+        g_state.actuatorRequestOn = false;
       }
     }
   }

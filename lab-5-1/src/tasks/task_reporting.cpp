@@ -32,7 +32,7 @@ namespace TaskReporting
 
   void tick(
       const TaskConditioning::State &cond,
-      bool relayOn)
+      bool actuatorOn)
   {
     const uint32_t now = millis();
     if ((uint32_t)(now - lastMs) < g_cfg.periodMs)
@@ -48,7 +48,7 @@ namespace TaskReporting
       const int hi10 = toTenths(cond.upperThresholdPct);
 
       printf(
-          "[%lu] H=%d.%d %% | SP=%d %% | band=[%d.%d, %d.%d] %% | relay=%s | sensor=OK\n",
+          "[%lu] H=%d.%d %% | SP=%d %% | band=[%d.%d, %d.%d] %% | actuator=%s | sensor=OK\n",
           (unsigned long)seq++,
           h10 / 10,
           absInt(h10 % 10),
@@ -57,7 +57,7 @@ namespace TaskReporting
           absInt(lo10 % 10),
           hi10 / 10,
           absInt(hi10 % 10),
-          relayOn ? "ON" : "OFF");
+          actuatorOn ? "ON" : "OFF");
     }
     else
     {
@@ -65,14 +65,14 @@ namespace TaskReporting
       const int hi10 = toTenths(cond.upperThresholdPct);
 
       printf(
-          "[%lu] H=n/a | SP=%d %% | band=[%d.%d, %d.%d] %% | relay=%s | sensor=ERR\n",
+          "[%lu] H=n/a | SP=%d %% | band=[%d.%d, %d.%d] %% | actuator=%s | sensor=ERR\n",
           (unsigned long)seq++,
           cond.setPointPct,
           lo10 / 10,
           absInt(lo10 % 10),
           hi10 / 10,
           absInt(hi10 % 10),
-          relayOn ? "ON" : "OFF");
+          actuatorOn ? "ON" : "OFF");
     }
   }
 }

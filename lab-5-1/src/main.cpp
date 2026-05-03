@@ -20,7 +20,7 @@ void loop()
   TaskConditioning::tick();
   const TaskConditioning::State condState = TaskConditioning::getState();
 
-  TaskActuatorControl::commandState(condState.relayRequestOn);
+  TaskActuatorControl::commandState(condState.actuatorRequestOn);
   TaskActuatorControl::tick();
 
   TaskReporting::tick(
