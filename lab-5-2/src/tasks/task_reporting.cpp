@@ -5,7 +5,6 @@ namespace
 {
   TaskReporting::Config g_cfg{2000};
   uint32_t lastMs = 0;
-  uint32_t seq = 0;
 
   int toTenths(float v)
   {
@@ -25,8 +24,6 @@ namespace TaskReporting
   {
     g_cfg = cfg;
     lastMs = millis();
-    seq = 0;
-
     printf("\n--- Ready ---\n");
   }
 
@@ -44,35 +41,34 @@ namespace TaskReporting
     if (cond.humidityValid)
     {
       const int h10 = toTenths(cond.humidityPct);
-      const int lo10 = toTenths(cond.lowerThresholdPct);
-      const int hi10 = toTenths(cond.upperThresholdPct);
+      const int out10 = toTenths(cond.controlOutputPct);
+      const int duty10 = toTenths(cond.controlDutyPct);
 
       printf(
-          "[%lu] H=%d.%d %% | SP=%d %% | band=[%d.%d, %d.%d] %% | actuator=%s | sensor=OK\n",
-          (unsigned long)seq++,
+          ">SetPoint:%d,Value:%d.%d,Output:%d.%d\n",
+          cond.setPointPct,
+          h10 / 10,
+          absInt(h10 % 10),
+          out10 / 10,
+          absInt(out10 % 10));
+      printf(
+          "# H=%d.%d %% | SP=%d %% | OUT=%d.%d %% | Duty=%d.%d %%\n",
           h10 / 10,
           absInt(h10 % 10),
           cond.setPointPct,
-          lo10 / 10,
-          absInt(lo10 % 10),
-          hi10 / 10,
-          absInt(hi10 % 10),
-          actuatorOn ? "ON" : "OFF");
+          out10 / 10,
+          absInt(out10 % 10),
+          duty10 / 10,
+          absInt(duty10 % 10));
     }
     else
     {
-      const int lo10 = toTenths(cond.lowerThresholdPct);
-      const int hi10 = toTenths(cond.upperThresholdPct);
-
       printf(
-          "[%lu] H=n/a | SP=%d %% | band=[%d.%d, %d.%d] %% | actuator=%s | sensor=ERR\n",
-          (unsigned long)seq++,
-          cond.setPointPct,
-          lo10 / 10,
-          absInt(lo10 % 10),
-          hi10 / 10,
-          absInt(hi10 % 10),
-          actuatorOn ? "ON" : "OFF");
+          ">SetPoint:%d,Value:0.0,Output:0.0\n",
+          cond.setPointPct);
+      printf(
+          "# H=n/a | SP=%d %% | OUT=0.0 %% | Duty=0.0 %%\n",
+          cond.setPointPct);
     }
   }
 }

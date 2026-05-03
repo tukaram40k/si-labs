@@ -16,11 +16,17 @@ namespace TaskConditioning
     int setPointMinPct;
     int setPointMaxPct;
     int setPointStepPct;
-    float hysteresisPct;
+
+    float kp;
+    float ki;
+    float kd;
+    float outputMinPct;
+    float outputMaxPct;
 
     uint16_t buttonPeriodMs;
     uint16_t samplePeriodMs;
     uint16_t controlPeriodMs;
+    uint16_t controlWindowMs;
   };
 
   struct State
@@ -28,8 +34,8 @@ namespace TaskConditioning
     float humidityPct;
     bool humidityValid;
     int setPointPct;
-    float lowerThresholdPct;
-    float upperThresholdPct;
+    float controlOutputPct;
+    float controlDutyPct;
     bool actuatorRequestOn;
   };
 

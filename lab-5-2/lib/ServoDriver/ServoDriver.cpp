@@ -44,13 +44,20 @@ void ServoDriver::stop_flipping() {
   writeDeg(FLIP_MIN_DEG);
 }
 
+void ServoDriver::setFlipStepPeriodMs(uint16_t periodMs) {
+  if (periodMs == 0) {
+    periodMs = 1;
+  }
+  m_stepPeriodMs = periodMs;
+}
+
 void ServoDriver::tick() {
   if (!m_flipping) {
     return;
   }
 
   const uint32_t now = millis();
-  if ((uint32_t)(now - m_lastStepMs) < FLIP_STEP_PERIOD_MS) {
+  if ((uint32_t)(now - m_lastStepMs) < m_stepPeriodMs) {
     return;
   }
   m_lastStepMs = now;

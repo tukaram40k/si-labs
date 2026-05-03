@@ -4,13 +4,22 @@
 
 namespace
 {
-  TaskActuatorControl::Config g_cfg{7, 50};
+  TaskActuatorControl::Config g_cfg{7, 50, 10, 80};
   ServoDriver g_servo;
 
-  bool g_commandOn = false;
+  float g_commandOutputPct = 0.0f;
   bool g_appliedOn = false;
 
   uint32_t g_lastUpdateMs = 0;
+
+  float clampFloat(float v, float lo, float hi)
+  {
+    if (v < lo)
+      return lo;
+    if (v > hi)
+      return hi;
+    return v;
+  }
 }
 
 namespace TaskActuatorControl
@@ -20,16 +29,16 @@ namespace TaskActuatorControl
     g_cfg = cfg;
     g_servo.setup(ServoDriver::Config{.pin = g_cfg.servoPin});
 
-    g_commandOn = false;
+    g_commandOutputPct = 0.0f;
     g_appliedOn = false;
     g_servo.stop_flipping();
 
     g_lastUpdateMs = millis();
   }
 
-  void commandState(bool actuatorOn)
+  void commandOutputPct(float outputPct)
   {
-    g_commandOn = actuatorOn;
+    g_commandOutputPct = outputPct;
   }
 
   void tick()
@@ -43,19 +52,45 @@ namespace TaskActuatorControl
     }
     g_lastUpdateMs = now;
 
-    if (g_appliedOn != g_commandOn)
+    const float outputPct = clampFloat(g_commandOutputPct, 0.0f, 100.0f);
+    const bool shouldOn = (outputPct > 0.0f);
+    if (!shouldOn)
     {
-      g_appliedOn = g_commandOn;
-
       if (g_appliedOn)
       {
-        g_servo.start_flipping();
-      }
-      else
-      {
+        g_appliedOn = false;
         g_servo.stop_flipping();
       }
+      return;
     }
+
+    if (!g_appliedOn)
+    {
+      g_appliedOn = true;
+      g_servo.start_flipping();
+    }
+
+    uint16_t minStepMs = g_cfg.minFlipStepPeriodMs;
+    uint16_t maxStepMs = g_cfg.maxFlipStepPeriodMs;
+    if (minStepMs == 0)
+    {
+      minStepMs = 1;
+    }
+    if (maxStepMs < minStepMs)
+    {
+      maxStepMs = minStepMs;
+    }
+
+    const float range = (float)(maxStepMs - minStepMs);
+    const float maxSpeedPct = 50.0f;
+    float scaledPct = outputPct / maxSpeedPct;
+    if (scaledPct > 1.0f)
+    {
+      scaledPct = 1.0f;
+    }
+
+    const uint16_t stepMs = (uint16_t)(maxStepMs - (scaledPct * range) + 0.5f);
+    g_servo.setFlipStepPeriodMs(stepMs);
   }
 
   bool isOn()
