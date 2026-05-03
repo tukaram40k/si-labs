@@ -4,10 +4,13 @@ static FILE serial_stream;
 
 namespace IO {
   int serial_putchar(char c, FILE *stream) {
-    Serial.write(c);
     if (c == '\n') {
       Serial.write('\r');
+      Serial.write('\n');
+      return 0;
     }
+
+    Serial.write(c);
     return 0;
   }
 

@@ -5,7 +5,7 @@
 
 namespace
 {
-  TaskConditioning::Config g_cfg{3, 9, 8, true, 30, 55, 30, 90, 1, 3.0f, 30, 1200, 100};
+  TaskConditioning::Config g_cfg{3, 9, 8, true, 30, 55, 30, 90, 1, 2.0f, 0.2f, 0.8f, 0.0f, 100.0f, 30, 2000, 2000, 2000};
   TaskConditioning::State g_state{};
 
   ButtonDriver g_upButton;
@@ -16,6 +16,10 @@ namespace
   uint32_t g_lastSampleMs = 0;
   uint32_t g_lastControlMs = 0;
 
+  float g_integralTerm = 0.0f;
+  float g_prevError = 0.0f;
+  bool g_hasPrevError = false;
+
   int clampInt(int v, int lo, int hi)
   {
     if (v < lo)
@@ -25,10 +29,13 @@ namespace
     return v;
   }
 
-  void updateThresholds()
+  float clampFloat(float v, float lo, float hi)
   {
-    g_state.lowerThresholdPct = (float)g_state.setPointPct - g_cfg.hysteresisPct;
-    g_state.upperThresholdPct = (float)g_state.setPointPct + g_cfg.hysteresisPct;
+    if (v < lo)
+      return lo;
+    if (v > hi)
+      return hi;
+    return v;
   }
 }
 
@@ -54,8 +61,13 @@ namespace TaskConditioning
     g_state.humidityPct = 0.0f;
     g_state.humidityValid = false;
     g_state.setPointPct = clampInt(g_cfg.setPointInitPct, g_cfg.setPointMinPct, g_cfg.setPointMaxPct);
+    g_state.controlOutputPct = 0.0f;
+    g_state.controlDutyPct = 0.0f;
     g_state.actuatorRequestOn = false;
-    updateThresholds();
+
+    g_integralTerm = 0.0f;
+    g_prevError = 0.0f;
+    g_hasPrevError = false;
 
     const uint32_t now = millis();
     g_lastButtonsMs = now - g_cfg.buttonPeriodMs;
@@ -86,7 +98,11 @@ namespace TaskConditioning
       if (setPointChanged)
       {
         g_state.setPointPct = clampInt(g_state.setPointPct, g_cfg.setPointMinPct, g_cfg.setPointMaxPct);
-        updateThresholds();
+        g_integralTerm = 0.0f;
+        g_prevError = 0.0f;
+        g_hasPrevError = false;
+        g_state.controlOutputPct = 0.0f;
+        g_state.controlDutyPct = 0.0f;
       }
     }
 
@@ -108,23 +124,45 @@ namespace TaskConditioning
 
     if ((uint32_t)(now - g_lastControlMs) >= g_cfg.controlPeriodMs)
     {
+      const uint32_t dtMs = (uint32_t)(now - g_lastControlMs);
       g_lastControlMs = now;
 
       if (!g_state.humidityValid)
       {
-        return;
+        g_state.controlOutputPct = 0.0f;
+        g_state.controlDutyPct = 0.0f;
+        g_integralTerm = 0.0f;
+        g_prevError = 0.0f;
+        g_hasPrevError = false;
       }
+      else
+      {
+        const float dtSec = (dtMs > 0) ? (dtMs / 1000.0f) : 0.001f;
+        const float error = g_state.humidityPct - (float)g_state.setPointPct;
 
-      // Inverse action: actuator ON at high humidity, OFF at low humidity.
-      if (!g_state.actuatorRequestOn && g_state.humidityPct > g_state.upperThresholdPct)
-      {
-        g_state.actuatorRequestOn = true;
-      }
-      else if (g_state.actuatorRequestOn && g_state.humidityPct < g_state.lowerThresholdPct)
-      {
-        g_state.actuatorRequestOn = false;
+        const float outputMin = (g_cfg.outputMinPct < 0.0f) ? 0.0f : g_cfg.outputMinPct;
+
+        g_integralTerm += g_cfg.ki * error * dtSec;
+        g_integralTerm = clampFloat(g_integralTerm, outputMin, g_cfg.outputMaxPct);
+
+        float derivative = 0.0f;
+        if (g_hasPrevError)
+        {
+          derivative = (error - g_prevError) / dtSec;
+        }
+
+        float output = (g_cfg.kp * error) + g_integralTerm + (g_cfg.kd * derivative);
+        output = clampFloat(output, outputMin, g_cfg.outputMaxPct);
+
+        g_prevError = error;
+        g_hasPrevError = true;
+
+        g_state.controlOutputPct = output;
+        g_state.controlDutyPct = clampFloat(output, 0.0f, 100.0f);
       }
     }
+
+    g_state.actuatorRequestOn = g_state.humidityValid && (g_state.controlDutyPct > 0.0f);
   }
 
   State getState()

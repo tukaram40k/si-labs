@@ -19,6 +19,7 @@ public:
 
   void start_flipping();
   void stop_flipping();
+  void setFlipStepPeriodMs(uint16_t periodMs);
   void tick();
 
   int getLastWrittenDeg() const;
@@ -29,6 +30,7 @@ private:
   bool m_flipping = false;
   int m_direction = 1;
   uint32_t m_lastStepMs = 0;
+  uint16_t m_stepPeriodMs = FLIP_STEP_PERIOD_MS;
 
   static constexpr int FLIP_MIN_DEG = 0;
   static constexpr int FLIP_MAX_DEG = 90;

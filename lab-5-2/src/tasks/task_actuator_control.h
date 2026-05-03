@@ -8,11 +8,13 @@ namespace TaskActuatorControl
   {
     uint8_t servoPin;
     uint16_t periodMs;
+    uint16_t minFlipStepPeriodMs;
+    uint16_t maxFlipStepPeriodMs;
   };
 
   void setup(const Config &cfg);
 
-  void commandState(bool actuatorOn);
+  void commandOutputPct(float outputPct);
   void tick();
   bool isOn();
 }

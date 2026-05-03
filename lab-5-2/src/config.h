@@ -21,15 +21,22 @@ namespace Config
       .setPointMinPct = 30,
       .setPointMaxPct = 90,
       .setPointStepPct = 1,
-      .hysteresisPct = 2.0f,
+      .kp = 5.0f,
+      .ki = 0.1f,
+      .kd = 0.8f,
+    .outputMinPct = 0.0f,
+      .outputMaxPct = 100.0f,
       .buttonPeriodMs = 30,
       .samplePeriodMs = 2000,
-      .controlPeriodMs = 100,
+      .controlPeriodMs = 2000,
+      .controlWindowMs = 2000,
   };
 
   inline constexpr TaskActuatorControl::Config ACTUATOR_CFG{
       .servoPin = SERVO_PIN,
       .periodMs = 50,
+      .minFlipStepPeriodMs = 10,
+      .maxFlipStepPeriodMs = 80,
   };
 
   inline constexpr TaskReporting::Config REPORTING_CFG{
